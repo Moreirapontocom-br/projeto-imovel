@@ -23,6 +23,9 @@
   --warning: #9B650B;
 
   --font: "Inter", Arial, sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", Arial, sans-serif; /* títulos, marca e preços em destaque */
+  --on-navy: rgb(255 255 255 / 86%);
+  --on-navy-line: rgb(255 255 255 / 20%);
 
   --r-sm: 8px;
   --r-md: 12px;

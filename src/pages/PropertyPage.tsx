@@ -161,7 +161,7 @@ export default function PropertyPage() {
                 </div>
               </div>
               {(error || conflict) && <p className="form-error" role="alert"><AlertCircle size={16} />{error || `${conflict!.reason}.`}</p>}
-              <Button block size="lg" onClick={() => add(true)} disabled={!!conflict}>Reservar</Button>
+              <Button block size="lg" variant="gold" onClick={() => add(true)} disabled={!!conflict}>Reservar</Button>
               <Button block variant="secondary" onClick={() => add(false)} disabled={!!conflict}>Adicionar ao carrinho</Button>
               <p className="book-note">Simulação: nenhuma cobrança será feita.</p>
               {q && (
@@ -187,7 +187,7 @@ export default function PropertyPage() {
           <strong>{q ? brl(q.total) : `${brl(p.nightly)} / noite`}</strong>
           <a href="#disponibilidade">{range ? `${fmtRange(range)} · ${q?.nights} noites` : 'Escolha as datas'}</a>
         </span>
-        <Button onClick={() => add(true)} disabled={!!conflict}>Reservar</Button>
+        <Button variant="gold" onClick={() => add(true)} disabled={!!conflict}>Reservar</Button>
       </div>
       <Footer />
 

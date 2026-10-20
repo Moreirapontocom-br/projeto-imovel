@@ -13,6 +13,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.25; letter-spacing: -0.02em; text-wrap: balance; }
+h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.025em; font-optical-sizing: auto; }
 p { margin: 0; text-wrap: pretty; }
 ::selection { background: var(--gold-light); color: var(--navy-deep); }
 :focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; border-radius: 4px; }

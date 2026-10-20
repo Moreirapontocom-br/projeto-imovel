@@ -26,7 +26,7 @@ export function Header({ children, below, wide }: { children?: ReactNode; below?
   return (
     <header className={`site-header ${wide ? 'is-wide' : ''}`}>
       <div className="sh-top">
-        <BrandMark />
+        <BrandMark inverse />
         <div className="sh-center">{children}</div>
         <nav className="sh-right" aria-label="Conta">
           {role === 'cliente' && <NavLink to="/cliente" className="sh-link">Minhas reservas</NavLink>}
