@@ -6,13 +6,16 @@
 .sh-right { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
 .sh-link { font-size: 14px; font-weight: 600; text-decoration: none; padding: 11px 14px; border-radius: var(--r-pill); white-space: nowrap; color: #fff; }
 .sh-link:hover { background: rgb(255 255 255 / 8%); }
+/* Entrar: botão sólido, para não se confundir com os chips de filtro (contorno) logo abaixo */
+.sh-login { background: #fff; color: var(--navy); padding: 11px 18px; }
+.sh-login:hover { background: var(--surface-warm); }
 .sh-cart { position: relative; width: 44px; height: 44px; text-decoration: none; }
-.site-header .icon-btn-outline { background: transparent; border-color: var(--on-navy-line); color: #fff; }
-.site-header .icon-btn-outline:hover { background: rgb(255 255 255 / 8%); }
+.site-header .icon-btn-outline { background: rgb(255 255 255 / 10%); border-color: transparent; color: #fff; }
+.site-header .icon-btn-outline:hover { background: rgb(255 255 255 / 18%); }
 .sh-cart .count { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--gold); color: var(--navy-deep); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
 .sh-menu { position: relative; }
-.account-btn { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 5px 0 14px; border-radius: var(--r-pill); border: 1px solid var(--on-navy-line); background: transparent; color: #fff; transition: background var(--fast); }
-.account-btn:hover { background: rgb(255 255 255 / 8%); }
+.account-btn { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 5px 0 14px; border-radius: var(--r-pill); border: 1px solid transparent; background: rgb(255 255 255 / 10%); color: #fff; transition: background var(--fast); }
+.account-btn:hover { background: rgb(255 255 255 / 18%); }
 .site-header .avatar { background: var(--gold-light); color: var(--navy-deep); }
 .site-header .avatar.is-guest { background: rgb(255 255 255 / 16%); color: #fff; }
 .menu { color: var(--navy); }
@@ -68,6 +71,7 @@
 /* ---------- Filtros ---------- */
 .filterbar { display: flex; align-items: center; gap: 8px; padding: 2px var(--gutter) 14px; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 72px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 72px), transparent); }
 .filterbar > :last-child { margin-right: 56px; }
+.site-header .filterbar { border-top: 1px solid rgb(255 255 255 / 10%); padding-top: 12px; }
 .filterbar::-webkit-scrollbar { display: none; }
 .chip-sep { width: 1px; height: 24px; background: var(--on-navy-line); flex: none; margin: 0 4px; }
 .chip-clear { flex: none; white-space: nowrap; color: #fff; }
@@ -417,7 +421,10 @@ a.book-field:hover { background: var(--surface-soft); }
 
 /* ---------- Responsivo do header ---------- */
 @media (max-width: 1100px) {
-  .sh-link { display: none; }
+  .sh-link:not(.sh-login) { display: none; }
+}
+@media (max-width: 640px) {
+  .sh-login { display: none; }
 }
 @media (max-width: 900px) {
   :root { --header-h: 68px; }
