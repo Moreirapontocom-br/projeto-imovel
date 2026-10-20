@@ -5,7 +5,7 @@ Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para
 - **Link para apresentar (página privada do Claude):** https://claude.ai/artifact/QLnmYYVxCJ3Vr9PUto56Yr
   Só você vê até compartilhar pelo menu *Compartilhar* da página.
 - **Rodar no computador:** `npm install` e depois `npm run dev`, em http://localhost:5173
-- **Repositório:** git local pronto. O GitHub (`projeto-imovel`, privado) depende de `gh auth login`.
+- **Repositório (privado):** https://github.com/Moreirapontocom-br/projeto-imovel
 
 > Tudo é fictício: imóveis, fotos (geradas por IA), valores, pessoas, reservas e contratos. Não há cobrança real, e os contratos não têm validade jurídica.
 
@@ -112,7 +112,6 @@ src/
 
 - Os dados ficam no navegador de quem usa. Cada pessoa vê sua própria cópia da demo.
 - Na página do Claude, o mapa só cobre a área da demo (zoom 12 a 16), e o PDF pede confirmação antes de baixar.
-- O GitHub ainda não foi criado porque falta o login do `gh`.
 
 ## 9. Histórico
 
@@ -123,3 +122,4 @@ src/
 | 20/10/2026 | Passe de polish do impeccable sem mudar a estrutura |
 | 20/10/2026 | Publicação como página privada do Claude e documentação |
 | 20/10/2026 | Refresh visual "mais marca" sem mudar a estrutura |
+| 20/10/2026 | Repositório privado criado no GitHub |

@@ -6,6 +6,7 @@ Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para
 
 - **Demonstração online (página privada do Claude):** https://claude.ai/artifact/QLnmYYVxCJ3Vr9PUto56Yr
 - **Documentação completa:** [DOCUMENTACAO.md](DOCUMENTACAO.md)
+- **Repositório:** https://github.com/Moreirapontocom-br/projeto-imovel (privado)
 
 ## Rodar localmente
 
