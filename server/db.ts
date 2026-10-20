@@ -49,14 +49,15 @@ CREATE TABLE IF NOT EXISTS reservations (
   contract_id TEXT
 );
 
-CREATE TABLE IF NOT EXISTS installments (
+CREATE TABLE IF NOT EXISTS receipts (
+  id             TEXT PRIMARY KEY,
   reservation_id TEXT NOT NULL REFERENCES reservations(id) ON DELETE CASCADE,
   n              INTEGER NOT NULL,
-  label          TEXT NOT NULL,
-  due_date       TEXT NOT NULL,
-  amount         REAL NOT NULL,
-  status         TEXT NOT NULL CHECK (status IN ('pago', 'aberto', 'atrasado')),
-  PRIMARY KEY (reservation_id, n)
+  name           TEXT NOT NULL,
+  type           TEXT NOT NULL,
+  size           INTEGER NOT NULL,
+  data           BLOB NOT NULL,
+  uploaded_at    TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS blocks (
@@ -97,16 +98,45 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 `;
 
+const INSTALLMENTS = `
+CREATE TABLE IF NOT EXISTS installments (
+  reservation_id TEXT NOT NULL REFERENCES reservations(id) ON DELETE CASCADE,
+  n              INTEGER NOT NULL,
+  label          TEXT NOT NULL,
+  due_date       TEXT NOT NULL,
+  amount         REAL NOT NULL,
+  status         TEXT NOT NULL CHECK (status IN ('pago', 'aberto', 'atrasado', 'em-analise')),
+  receipt_id     TEXT REFERENCES receipts(id) ON DELETE SET NULL,
+  review_note    TEXT,
+  paid_at        TEXT,
+  PRIMARY KEY (reservation_id, n)
+);`;
+
 export function openDb(path = DB_PATH) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec(SCHEMA);
+  migrateInstallments(db);
+  db.exec(INSTALLMENTS);
   const { n } = db.prepare('SELECT COUNT(*) AS n FROM properties').get() as { n: number };
   if (!n) seed(db);
   return db;
 }
 
 export type Db = DatabaseSync;
+
+/** Bancos criados antes dos comprovantes: recria `installments` com as colunas novas, preservando os dados. */
+function migrateInstallments(db: Db) {
+  const cols = db.prepare('PRAGMA table_info(installments)').all() as { name: string }[];
+  if (!cols.length || cols.some((c) => c.name === 'receipt_id')) return;
+  tx(db, () => {
+    db.exec('ALTER TABLE installments RENAME TO installments_old');
+    db.exec(INSTALLMENTS);
+    db.exec(`INSERT INTO installments (reservation_id, n, label, due_date, amount, status)
+             SELECT reservation_id, n, label, due_date, amount, status FROM installments_old`);
+    db.exec('DROP TABLE installments_old');
+  });
+}
 
 /** Executa `fn` numa transação de escrita exclusiva; desfaz tudo se algo falhar. */
 export function tx<T>(db: Db, fn: () => T): T {
@@ -124,7 +154,7 @@ export function tx<T>(db: Db, fn: () => T): T {
 /** Apaga tudo e recarrega os dados fictícios de demonstração. */
 export function seed(db: Db) {
   tx(db, () => {
-    for (const t of ['contracts', 'blocks', 'installments', 'reservations', 'clients', 'templates', 'properties', 'settings']) {
+    for (const t of ['contracts', 'blocks', 'installments', 'receipts', 'reservations', 'clients', 'templates', 'properties', 'settings']) {
       db.exec(`DELETE FROM ${t}`);
     }
     for (const p of seedProperties) insertProperty(db, p);
@@ -153,8 +183,8 @@ export function insertReservation(db: Db, r: Reservation) {
   db.prepare(`INSERT INTO reservations (id, code, property_id, client_id, start, end, guests, total, method, status, created_at, contract_id)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(r.id, r.code, r.propertyId, r.clientId, r.range.start, r.range.end, r.guests, r.total, r.method, r.status, r.createdAt, r.contractId ?? null);
-  const ins = db.prepare('INSERT INTO installments (reservation_id, n, label, due_date, amount, status) VALUES (?, ?, ?, ?, ?, ?)');
-  for (const i of r.installments) ins.run(r.id, i.n, i.label, i.dueDate, i.amount, i.status);
+  const ins = db.prepare('INSERT INTO installments (reservation_id, n, label, due_date, amount, status, paid_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  for (const i of r.installments) ins.run(r.id, i.n, i.label, i.dueDate, i.amount, i.status, i.paidAt ?? null);
 }
 
 export const insertBlock = (db: Db, b: AvailabilityBlock) =>
@@ -207,7 +237,9 @@ export function getReservations(db: Db, clientId?: string) {
   const rows = (clientId
     ? db.prepare('SELECT * FROM reservations WHERE client_id = ? ORDER BY rowid').all(clientId)
     : db.prepare('SELECT * FROM reservations ORDER BY rowid').all()) as Row[];
-  const inst = db.prepare('SELECT * FROM installments WHERE reservation_id = ? ORDER BY n');
+  const inst = db.prepare(`SELECT i.*, r.name AS r_name, r.type AS r_type, r.size AS r_size, r.uploaded_at AS r_at
+                           FROM installments i LEFT JOIN receipts r ON r.id = i.receipt_id
+                           WHERE i.reservation_id = ? ORDER BY i.n`);
   return rows.map((r): Reservation => ({
     id: r.id as string, code: r.code as string, propertyId: r.property_id as string, clientId: r.client_id as string,
     range: { start: r.start as string, end: r.end as string }, guests: Number(r.guests), total: Number(r.total),
@@ -215,6 +247,9 @@ export function getReservations(db: Db, clientId?: string) {
     contractId: (r.contract_id as string | null) ?? undefined,
     installments: (inst.all(r.id as string) as Row[]).map((i): Installment => ({
       n: Number(i.n), label: i.label as string, dueDate: i.due_date as string, amount: Number(i.amount), status: i.status as Installment['status'],
+      ...(i.receipt_id ? { receipt: { id: i.receipt_id as string, name: i.r_name as string, type: i.r_type as string, size: Number(i.r_size), uploadedAt: i.r_at as string } } : {}),
+      ...(i.review_note ? { reviewNote: i.review_note as string } : {}),
+      ...(i.paid_at ? { paidAt: i.paid_at as string } : {}),
     })),
   }));
 }

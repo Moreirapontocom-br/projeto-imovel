@@ -22,6 +22,7 @@ export async function api<T = Snapshot>(
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body?: unknown,
+  as: 'json' | 'blob' = 'json',
 ): Promise<T> {
   let res: Response;
   try {
@@ -38,6 +39,7 @@ export async function api<T = Snapshot>(
   } catch {
     throw new ApiError(0, 'Sem conexão com o servidor. Verifique a internet e tente novamente.');
   }
+  if (res.ok && as === 'blob') return (await res.blob()) as T;
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(res.status, data.error ?? 'Erro no servidor. Tente novamente.', data.itemId);
   return data as T;

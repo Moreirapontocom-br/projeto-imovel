@@ -29,9 +29,9 @@ Sem `VITE_API_URL`, o site continua no modo demonstração, com os dados no nave
 | Perfil | Onde | O que faz |
 |---|---|---|
 | Visitante | `/`, `/buscar`, `/imovel/:id` | Home por bairros, busca com lista + mapa, filtros (bairro, preço, hóspedes, distância dos circuitos, comodidades), detalhe com calendário |
-| Visitante | `/carrinho`, `/checkout` | Carrinho com vários imóveis, Pix ou cartão, entrada + parcelas, confirmação simulada |
-| Cliente | `/cliente` | Reservas, pagamentos (simular pagamento), contratos (ver, PDF, assinatura simulada), mapa com circuitos e pontos de interesse |
-| Admin | `/admin` | Mapa e lista com status (disponível, reservado, pendente, bloqueado), imóveis (editar, bloquear datas), reservas (confirmar/cancelar), clientes, modelos de contrato editáveis, condições de pagamento |
+| Visitante | `/carrinho`, `/checkout` | Carrinho com vários imóveis, Pix ou cartão, entrada + parcelas. No Pix: QR Code e copia e cola (fictícios) e envio do comprovante |
+| Cliente | `/cliente` | Reservas, pagamentos (Pix com comprovante por parcela; cartão simulado), contratos (ver, PDF, assinatura simulada), mapa com circuitos e pontos de interesse |
+| Admin | `/admin` | Mapa e lista com status (disponível, reservado, pendente, bloqueado), imóveis (editar, bloquear datas), reservas (confirmar/cancelar), pagamentos (ver comprovante, aprovar ou recusar cada parcela), clientes, modelos de contrato editáveis, condições de pagamento |
 
 Para trocar de perfil, use **Menu › Entrar** (`/entrar`). O rodapé tem **Restaurar dados de demonstração**.
 

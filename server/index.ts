@@ -3,6 +3,7 @@ import type { AvailabilityBlock, Client, Contract, ContractTemplate, DateRange, 
 import { findConflict } from '@/lib/availability';
 import { buildInstallments, maxInstallmentsFor, quote } from '@/lib/payment';
 import { nightsBetween, todayIso } from '@/lib/dates';
+import { receiptRules } from '@/config/payment';
 import * as q from './db';
 
 // API REST da plataforma. Todas as regras que mexem em dinheiro ou disponibilidade rodam aqui:
@@ -164,6 +165,27 @@ function canTouchReservation(s: Session, reservationId: string) {
   return r;
 }
 
+const installment = (r: Reservation, n: number) => {
+  const i = r.installments.find((x) => x.n === n);
+  if (!i) throw new HttpError(404, 'Parcela não encontrada.');
+  return i;
+};
+
+/** Valida o comprovante enviado como data URL (base64). */
+function decodeReceipt(body: { name?: unknown; type?: unknown; dataUrl?: unknown }) {
+  const m = /^data:([\w/+.-]+);base64,([A-Za-z0-9+/=]+)$/.exec(String(body.dataUrl ?? ''));
+  if (!m || !receiptRules.types.includes(m[1])) throw new HttpError(400, 'Formato não aceito. Envie uma foto (JPG, PNG) ou um PDF.');
+  const data = Buffer.from(m[2], 'base64');
+  if (!data.length) throw new HttpError(400, 'Arquivo vazio.');
+  if (data.length > receiptRules.maxBytes) throw new HttpError(413, 'Arquivo grande demais (máximo de 3 MB).');
+  // confere a assinatura do arquivo, não só o tipo declarado
+  const magic = data.subarray(0, 12).toString('latin1');
+  const ok = m[1] === 'application/pdf' ? magic.startsWith('%PDF') : m[1] === 'image/png' ? data[0] === 0x89 && magic.slice(1, 4) === 'PNG' : m[1] === 'image/jpeg' ? data[0] === 0xff && data[1] === 0xd8 : magic.startsWith('RIFF') && magic.slice(8) === 'WEBP';
+  if (!ok) throw new HttpError(400, 'O arquivo não corresponde ao formato informado.');
+  const name = String(body.name ?? 'comprovante').replace(/[^\w.\- ()À-ÿ]/g, '_').slice(0, 120) || 'comprovante';
+  return { name, type: m[1], data };
+}
+
 const EDITABLE: (keyof Property)[] = ['title', 'summary', 'description', 'nightly', 'cleaningFee', 'minNights', 'guests', 'highlight'];
 
 // ---------- roteamento ----------
@@ -216,9 +238,46 @@ const routes: [string, RegExp, Handler][] = [
     return snapshot(s);
   }],
   ['POST', /^\/api\/reservations\/([\w-]+)\/installments\/(\d+)\/pay$/, ({ s, params: [id, n] }) => {
-    canTouchReservation(s, id);
-    // pagamento SIMULADO; com PSP real, a baixa viria do webhook do provedor, não do navegador
-    db.prepare(`UPDATE installments SET status = 'pago' WHERE reservation_id = ? AND n = ?`).run(id, Number(n));
+    const r = canTouchReservation(s, id);
+    // cartão SIMULADO; com PSP real, a baixa viria do webhook do provedor, não do navegador.
+    // Pix nunca é baixado por aqui: exige comprovante + aprovação do administrador.
+    if (r.method !== 'cartao') throw new HttpError(409, 'Pagamentos via Pix precisam de comprovante e aprovação.');
+    db.prepare(`UPDATE installments SET status = 'pago', paid_at = ? WHERE reservation_id = ? AND n = ?`).run(todayIso(), id, Number(n));
+    return snapshot(s);
+  }],
+
+  // cliente envia o comprovante do Pix; a parcela fica em análise
+  ['POST', /^\/api\/reservations\/([\w-]+)\/installments\/(\d+)\/receipt$/, ({ s, body, params: [id, n] }) => {
+    const r = canTouchReservation(s, id);
+    if (r.status === 'cancelada') throw new HttpError(409, 'Reserva cancelada.');
+    const inst = installment(r, Number(n));
+    if (inst.status === 'pago') throw new HttpError(409, 'Esta parcela já foi paga.');
+    const file = decodeReceipt(body);
+    q.tx(db, () => {
+      const rid = uid('rc');
+      db.prepare('INSERT INTO receipts (id, reservation_id, n, name, type, size, data, uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        .run(rid, id, inst.n, file.name, file.type, file.data.length, file.data, todayIso());
+      db.prepare(`UPDATE installments SET status = 'em-analise', receipt_id = ?, review_note = NULL WHERE reservation_id = ? AND n = ?`).run(rid, id, inst.n);
+      // reenvio substitui o arquivo anterior
+      if (inst.receipt) db.prepare('DELETE FROM receipts WHERE id = ?').run(inst.receipt.id);
+    });
+    return snapshot(s);
+  }],
+
+  // administrador aprova (vira paga) ou recusa (volta a aberta, com motivo para o cliente)
+  ['POST', /^\/api\/reservations\/([\w-]+)\/installments\/(\d+)\/review$/, ({ s, body, params: [id, n] }) => {
+    requireAdmin(s);
+    const r = q.getReservation(db, id);
+    if (!r) throw new HttpError(404, 'Reserva não encontrada.');
+    const inst = installment(r, Number(n));
+    if (inst.status !== 'em-analise') throw new HttpError(409, 'Esta parcela não está aguardando aprovação.');
+    if (body.approve === true) {
+      db.prepare(`UPDATE installments SET status = 'pago', paid_at = ?, review_note = NULL WHERE reservation_id = ? AND n = ?`).run(todayIso(), id, inst.n);
+    } else {
+      const note = String(body.note ?? '').trim().slice(0, 300);
+      if (!note) throw new HttpError(400, 'Informe o motivo da recusa.');
+      db.prepare(`UPDATE installments SET status = 'aberto', review_note = ? WHERE reservation_id = ? AND n = ?`).run(note, id, inst.n);
+    }
     return snapshot(s);
   }],
 
@@ -269,10 +328,25 @@ async function readJson(req: IncomingMessage) {
   let raw = '';
   for await (const chunk of req) {
     raw += chunk;
-    if (raw.length > 1_000_000) throw new HttpError(413, 'Requisição grande demais.');
+    if (raw.length > 6_000_000) throw new HttpError(413, 'Requisição grande demais.');
   }
   if (!raw) return {};
   try { return JSON.parse(raw); } catch { throw new HttpError(400, 'JSON inválido.'); }
+}
+
+/** Arquivo do comprovante: só o dono da reserva e o administrador podem abrir. */
+function sendReceipt(res: ServerResponse, s: Session, id: string) {
+  const row = db.prepare('SELECT reservation_id, name, type, data FROM receipts WHERE id = ?').get(id) as { reservation_id: string; name: string; type: string; data: Uint8Array } | undefined;
+  if (!row) throw new HttpError(404, 'Comprovante não encontrado.');
+  canTouchReservation(s, row.reservation_id);
+  res.writeHead(200, {
+    'Content-Type': row.type,
+    'Content-Length': row.data.length,
+    'Content-Disposition': `inline; filename="${encodeURIComponent(row.name)}"`,
+    'X-Content-Type-Options': 'nosniff',
+    'Cache-Control': 'private, no-store',
+  });
+  res.end(Buffer.from(row.data));
 }
 
 function send(res: ServerResponse, status: number, data: unknown) {
@@ -291,6 +365,8 @@ const server = createServer(async (req, res) => {
 
   const path = new URL(req.url ?? '/', 'http://x').pathname;
   try {
+    const rec = req.method === 'GET' && /^\/api\/receipts\/([\w-]+)$/.exec(path);
+    if (rec) return sendReceipt(res, session(req), rec[1]);
     for (const [method, re, handler] of routes) {
       const m = re.exec(path);
       if (!m || method !== req.method) continue;

@@ -42,12 +42,26 @@ export interface AvailabilityBlock extends DateRange {
 export type ReservationStatus = 'pendente' | 'confirmada' | 'cancelada';
 export type PaymentMethod = 'pix' | 'cartao';
 
+/** Comprovante anexado pelo cliente. O arquivo em si fica fora da reserva (store ou servidor). */
+export interface Receipt {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  uploadedAt: string;
+}
+
 export interface Installment {
   n: number;
   label: string;
   dueDate: string;
   amount: number;
-  status: 'pago' | 'aberto' | 'atrasado';
+  /** em-analise = comprovante enviado, aguardando aprovação do administrador */
+  status: 'pago' | 'aberto' | 'atrasado' | 'em-analise';
+  receipt?: Receipt;
+  /** motivo informado pelo administrador ao recusar o último comprovante */
+  reviewNote?: string;
+  paidAt?: string;
 }
 
 export interface Reservation {

@@ -108,7 +108,7 @@ export default function Checkout() {
               {method === 'cartao' ? (
                 <p className="secure-note"><Lock size={15} />Na versão final, os dados do cartão serão digitados no ambiente seguro do provedor de pagamento. Esta demonstração não coleta dados de cartão.</p>
               ) : (
-                <p className="secure-note"><QrCode size={15} />Um código Pix demonstrativo será exibido após a confirmação. Ele não tem valor real.</p>
+                <p className="secure-note"><QrCode size={15} />Depois de confirmar, você recebe o QR Code e o Pix copia e cola de cada parcela. Pague no app do banco e anexe o comprovante; o administrador aprova cada pagamento. Nesta demonstração os códigos são fictícios.</p>
               )}
             </section>
 

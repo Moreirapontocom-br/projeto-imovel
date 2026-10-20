@@ -20,6 +20,7 @@ const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminProperties = lazy(() => import('@/pages/admin/AdminProperties'));
 const AdminReservations = lazy(() => import('@/pages/admin/AdminReservations'));
+const AdminPayments = lazy(() => import('@/pages/admin/AdminPayments'));
 const AdminClients = lazy(() => import('@/pages/admin/AdminClients'));
 const AdminContracts = lazy(() => import('@/pages/admin/AdminContracts'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
@@ -86,6 +87,7 @@ export default function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="imoveis" element={<AdminProperties />} />
               <Route path="reservas" element={<AdminReservations />} />
+              <Route path="pagamentos" element={<AdminPayments />} />
               <Route path="clientes" element={<AdminClients />} />
               <Route path="contratos" element={<AdminContracts />} />
               <Route path="configuracoes" element={<AdminSettings />} />

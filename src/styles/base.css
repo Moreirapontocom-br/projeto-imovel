@@ -192,3 +192,6 @@ input, textarea { caret-color: var(--gold); }
 .page-loading { min-height: 100vh; }
 .sync-error { position: fixed; z-index: 1000; left: 50%; bottom: 24px; transform: translateX(-50%); width: min(480px, calc(100vw - 32px)); align-items: center; box-shadow: 0 8px 24px rgba(6, 27, 55, 0.18); }
 .sync-error span { flex: 1; }
+.pill.is-review { color: #1d4f7a; background: #E7F0F8; }
+.pill.is-error { color: var(--error); background: #FDF0EE; }
+.seg-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--navy); color: #fff; font-size: 11px; display: inline-grid; place-items: center; }

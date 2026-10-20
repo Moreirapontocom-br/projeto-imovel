@@ -1,27 +1,14 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Copy, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { CheckCircle2, FileText } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { StatusBadge } from '@/components/ui';
+import { PixPayment } from '@/components/PixPayment';
 import { useStore } from '@/store';
 import { brl } from '@/lib/format';
 import { fmtRange } from '@/lib/dates';
 
-/** Padrão visual de QR (ilustrativo, não decodificável): três marcadores de canto + ruído determinístico. */
-function qrCells(seed: string, n = 21) {
-  let h = [...seed].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
-  const rnd = () => ((h = (h * 1103515245 + 12345) >>> 0) >>> 16) & 1;
-  const finder = (x: number, y: number) => {
-    for (const [ox, oy] of [[0, 0], [n - 7, 0], [0, n - 7]]) {
-      const dx = x - ox, dy = y - oy;
-      if (dx >= 0 && dx < 7 && dy >= 0 && dy < 7) return dx === 0 || dx === 6 || dy === 0 || dy === 6 || (dx > 1 && dx < 5 && dy > 1 && dy < 5) ? 1 : 0;
-      if (dx >= -1 && dx <= 7 && dy >= -1 && dy <= 7) return 0;
-    }
-    return null;
-  };
-  return Array.from({ length: n * n }, (_, i) => finder(i % n, Math.floor(i / n)) ?? rnd()).map(Boolean);
-}
+const hasMoreInstallments = (list: { installments: unknown[] }[]) => list.some((r) => r.installments.length > 1);
 
 export default function Confirmation() {
   const [sp] = useSearchParams();
@@ -29,9 +16,7 @@ export default function Confirmation() {
   const all = useStore((s) => s.reservations);
   const reservations = all.filter((r) => ids.includes(r.id));
   const properties = useStore((s) => s.properties);
-  const [copied, setCopied] = useState(false);
   const pix = reservations[0]?.method === 'pix';
-  const code = `00020126DEMO-${reservations.map((r) => r.code).join('-')}-SEM-VALOR-REAL`;
 
   return (
     <>
@@ -39,7 +24,11 @@ export default function Confirmation() {
       <main className="page-narrow confirm">
         <CheckCircle2 size={44} className="confirm-icon" aria-hidden />
         <h1>Solicitação de reserva enviada</h1>
-        <p className="lead">Isto não equivale a pagamento confirmado. A reserva fica <b>pendente</b> até a confirmação pelo administrador. Nada foi cobrado.</p>
+        <p className="lead">
+          {pix
+            ? <>Pague a {reservations[0]?.installments[0]?.label.toLowerCase() ?? 'entrada'} com Pix e anexe o comprovante. A reserva fica <b>pendente</b> até o administrador aprovar o pagamento.</>
+            : <>Isto não equivale a pagamento confirmado. A reserva fica <b>pendente</b> até a confirmação pelo administrador. Nada foi cobrado.</>}
+        </p>
 
         <ul className="confirm-list">
           {reservations.map((r) => {
@@ -57,17 +46,13 @@ export default function Confirmation() {
           })}
         </ul>
 
-        {pix && (
-          <div className="pix-box">
-            <div className="pix-qr" aria-hidden>{qrCells(code).map((on, i) => <i key={i} className={on ? 'on' : ''} />)}</div>
-            <div>
-              <h2>Pix demonstrativo</h2>
-              <p className="muted small">Código ilustrativo, sem valor real. Não tente pagar.</p>
-              <code className="pix-code">{code}</code>
-              <button className="btn btn-secondary btn-sm" onClick={() => { navigator.clipboard?.writeText(code); setCopied(true); }}><Copy size={15} />{copied ? 'Copiado' : 'Copiar código'}</button>
-            </div>
-          </div>
-        )}
+        {pix && reservations.map((r) => (
+          <section key={r.id} className="pix-box">
+            <h2>{reservations.length > 1 ? `${properties.find((x) => x.id === r.propertyId)?.title} · ` : ''}{r.installments[0].label} via Pix</h2>
+            <PixPayment reservation={r} installment={r.installments[0]} />
+          </section>
+        ))}
+        {pix && hasMoreInstallments(reservations) && <p className="muted small">As próximas parcelas ficam em <b>Minha área › Pagamentos</b>, cada uma com seu QR Code.</p>}
 
         <div className="confirm-actions">
           <Link to="/cliente" className="btn btn-primary btn-lg">Ir para minha área</Link>

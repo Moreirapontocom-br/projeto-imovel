@@ -348,13 +348,45 @@ a.book-field:hover { background: var(--surface-soft); }
 .confirm-list span { display: grid; }
 .confirm-list small { color: var(--text-3); font-size: 13px; }
 .confirm-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
-.pix-box { display: grid; grid-template-columns: 148px 1fr; gap: 24px; align-items: center; text-align: left; width: 100%; padding: 24px; border-radius: var(--r-card); background: var(--surface-warm); border: 1px solid #EADBBF; }
+.pix-box { display: grid; gap: 16px; text-align: left; width: 100%; padding: 24px; border-radius: var(--r-card); background: var(--surface-warm); border: 1px solid #EADBBF; }
 .pix-box h2 { font-size: 18px; }
-.pix-qr { display: grid; grid-template-columns: repeat(21, 1fr); padding: 12px; background: #fff; border-radius: var(--r-md); }
-.pix-qr i { aspect-ratio: 1; background: #fff; }
-.pix-qr i.on { background: var(--navy); }
-.pix-code { display: block; font-size: 12px; word-break: break-all; background: #fff; padding: 10px; border-radius: var(--r-sm); margin: 10px 0; color: var(--text-2); }
-@media (max-width: 560px) { .pix-box { grid-template-columns: 1fr; } .pix-qr { width: 148px; } }
+
+/* ---------- Pagamento Pix (QR, copia e cola, comprovante) ---------- */
+.pix-pay { display: grid; gap: 16px; }
+.pix-pay-code { display: grid; grid-template-columns: 196px 1fr; gap: 24px; align-items: start; }
+.pix-qr-img { background: #fff; border: 1px solid var(--border); border-radius: var(--r-md); padding: 10px; aspect-ratio: 1; display: grid; place-items: center; }
+.pix-qr-img img { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+.pix-pay-info { display: grid; gap: 10px; min-width: 0; }
+.pix-pay-info .fineprint { margin-top: 0; }
+.pix-amount { display: grid; gap: 2px; }
+.pix-amount small { font-size: 13px; color: var(--text-3); }
+.pix-amount b { font: 700 26px/1.1 var(--font-display); color: var(--navy); font-variant-numeric: tabular-nums; }
+.pix-steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; color: var(--text-2); }
+.pix-cc-label { font-size: 13px; font-weight: 600; margin-top: 4px; }
+.pix-cc { display: flex; gap: 8px; align-items: flex-start; }
+.pix-cc textarea { flex: 1; min-width: 0; resize: none; height: auto; min-height: 0; padding: 10px 12px; field-sizing: content; /* cresce até caber o código inteiro (Chromium); nos demais, rola */ font: 12px/1.45 ui-monospace, "Cascadia Mono", Consolas, monospace; color: var(--text-2); background: #fff; word-break: break-all; }
+.pix-state { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; padding: 12px 14px; border-radius: var(--r-sm); font-size: 14px; }
+.pix-state svg { flex: none; }
+.pix-state span { flex: 1; min-width: 200px; }
+.pix-state.is-ok { color: var(--success); background: #E8F3EC; }
+.pix-state.is-pending { color: #1d4f7a; background: #E7F0F8; }
+.receipt-form { display: grid; gap: 10px; justify-items: stretch; }
+.receipt-form > .link-btn { justify-self: start; }
+.receipt-file { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px dashed var(--border-strong); border-radius: var(--r-sm); background: #fff; }
+.receipt-file svg { color: var(--success); flex: none; }
+.receipt-file span { flex: 1; display: grid; min-width: 0; }
+.receipt-file b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.receipt-file small { font-size: 12px; color: var(--text-3); }
+.receipt-view { display: block; width: 100%; max-height: 70vh; object-fit: contain; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface-soft); margin-top: 12px; }
+img.receipt-view { width: auto; max-width: 100%; margin-inline: auto; }
+iframe.receipt-view { height: 70vh; }
+@media (max-width: 640px) {
+  .pix-box { padding: 16px; }
+  .pix-pay-code { grid-template-columns: 1fr; justify-items: center; }
+  .pix-qr-img { width: 200px; }
+  .pix-pay-info { width: 100%; }
+  .pix-cc { flex-direction: column; align-items: stretch; }
+}
 
 /* ---------- Login ---------- */
 .login { min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: var(--navy); background-image: radial-gradient(circle at 85% 10%, rgb(222 173 91 / 22%), transparent 40%), radial-gradient(circle at 10% 90%, rgb(23 103 161 / 35%), transparent 45%); }

@@ -25,6 +25,7 @@ Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para
 | Área do cliente (reservas, pagamentos, contratos, mapa) | `/cliente` | Pronto |
 | Carrinho e checkout simulado | `/carrinho`, `/checkout` | Pronto |
 | Pagamentos: total, entrada, parcelas, Pix e cartão | Checkout + `/admin/configuracoes` | Pronto, condições configuráveis |
+| Pix por parcela com comprovante e aprovação | Confirmação, `/cliente/pagamentos`, `/admin/pagamentos` | Pronto (Pix fictício) |
 | Modelos de contrato editáveis + PDF | `/admin/contratos` | Pronto, PDF com marca d'água |
 | Calendário por imóvel que impede conflitos | Página do imóvel + editor do admin | Pronto |
 
@@ -33,9 +34,9 @@ Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para
 1. **Busca:** abra a página inicial. Passe o mouse nos cards e veja o pin destacar no mapa. Clique num pin para ver o card do imóvel.
 2. **Filtros:** escolha "Barra", depois "Distância do circuito › Até 1 km". Ligue "Circuitos" no mapa.
 3. **Imóvel:** abra um apartamento disponível. Mostre as fotos, as comodidades, o calendário (dias riscados = ocupados) e as distâncias até os circuitos.
-4. **Reserva:** clique em **Reservar**, preencha os dados, escolha Pix ou cartão e "Entrada + 3x". Confirme a reserva simulada.
-5. **Cliente:** a confirmação leva à área do cliente. Mostre a reserva *pendente*, o cronograma e o contrato preenchido automaticamente (Visualizar / PDF).
-6. **Admin:** Menu › Entrar › **Administrador**. Na visão geral, o imóvel reservado aparece como *Pendente*. Em Reservas, clique em **Confirmar**. Mostre o editor de contratos e as condições de pagamento.
+4. **Reserva:** clique em **Reservar**, preencha os dados, escolha **Pix** e "Entrada + 3x". Confirme a reserva simulada.
+5. **Pix:** a confirmação mostra o QR Code e o copia e cola da entrada. Anexe qualquer foto ou PDF como comprovante: a entrada fica *em análise*. Em Minha área › Pagamentos, cada parcela tem seu próprio QR Code. Mostre também o contrato preenchido automaticamente (Visualizar / PDF).
+6. **Admin:** Menu › Entrar › **Administrador**. Em **Pagamentos**, abra o comprovante e clique em **Aprovar** (ou **Recusar**, informando o motivo que o cliente vai ver). Na visão geral, o imóvel reservado aparece como *Pendente*. Em Reservas, clique em **Confirmar**. Mostre o editor de contratos e as condições de pagamento.
 7. **Conflito:** volte ao mesmo imóvel e tente as mesmas datas. O calendário bloqueia o período.
 
 Para recomeçar do zero: rodapé › **Restaurar dados de demonstração**.
@@ -73,6 +74,9 @@ src/
   lib/geo.ts             distâncias em linha reta
   lib/contract.ts        preenchimento dos modelos
   lib/pdf.ts             PDF demonstrativo
+  lib/pix.ts             código Pix copia e cola (BR Code)
+  lib/receipt.ts         validação e redução dos comprovantes
+  components/PixPayment  QR Code, copia e cola e envio do comprovante
   services/index.ts      pontos de integração (pagamento, assinatura, autenticação)
   services/api.ts        cliente HTTP da API
   store/index.ts         estado das telas: demo (localStorage) ou cópia do servidor (modo API)
@@ -90,6 +94,8 @@ server/
 | API | `VITE_API_URL` definido (`npm run dev:api` usa `/api`) | no banco do servidor, compartilhado por todos |
 
 **Disponibilidade sem reserva dupla:** o checkout revalida todos os itens dentro de uma transação `BEGIN IMMEDIATE`, e o banco tem um trigger (`blocks_no_overlap`) que recusa qualquer período sobreposto. Em teste com 6 reservas simultâneas para o mesmo imóvel e datas, só 1 foi aceita. As outras receberam o erro 409 e o calendário foi atualizado.
+
+**Comprovantes no servidor:** ficam no banco (tabela `receipts`). O servidor confere o tipo pelo conteúdo do arquivo, não só pela extensão, e só o dono da reserva e o administrador conseguem abrir. Uma parcela Pix nunca vira *paga* sem passar pela aprovação do administrador. Bancos criados antes desta versão são atualizados sozinhos ao iniciar o servidor.
 
 **O servidor não confia no navegador:** total e parcelas são recalculados a partir do imóvel e das condições salvas. Hóspedes e mínimo de noites são validados. Visitantes não veem reservas, clientes nem motivos de bloqueio. Clientes só veem e pagam as próprias reservas.
 
@@ -114,6 +120,9 @@ server/
 - **Período padrão:** 4 a 10 de fevereiro de 2027. O calendário vai de 25/jan a 21/fev.
 - **Total:** diárias × noites + taxa de limpeza (+ taxa de serviço, se configurada).
 - **Pagamento:** entrada de 30%, saldo em até 6x no cartão ou 3x no Pix. Juros e desconto Pix em 0%, tudo configurável no admin.
+- **Pix:** cada parcela (inclusive a entrada) tem seu QR Code e copia e cola, no padrão do Banco Central (BR Code, com CRC), com o código da reserva e o número da parcela no identificador. O recebedor é **fictício** (`pix@sua-marca.invalid`, domínio que não existe), então nenhum banco aceita o pagamento. Os dados ficam em `src/config/payment.ts` (`pixReceiver`).
+- **Comprovante:** foto (JPG, PNG, WebP) ou PDF de até 3 MB; fotos são reduzidas para no máximo 1600 px antes do envio. A parcela fica *em análise*. O admin aprova (vira *paga*) ou recusa com motivo (volta a *em aberto* e o cliente vê o motivo e pode reenviar). Reenviar substitui o arquivo anterior.
+- **Cartão:** continua com pagamento simulado (aprovação imediata), sem comprovante.
 - **Status do imóvel** no período do Carnaval: bloqueado > pendente > reservado > disponível.
 - **Reserva nova:** entra como *pendente*. O admin confirma ou cancela, e cancelar libera as datas.
 - **Conflito:** o carrinho e o checkout revalidam as datas antes de gravar.
@@ -125,14 +134,14 @@ server/
 2. Contratar um provedor de mapas (Google Maps, Mapbox ou MapTiler).
 3. Implementar autenticação real e validar permissões no servidor.
 4. ~~Trocar o store local por API + banco de dados, com verificação transacional de disponibilidade.~~ Feito em `server/`. Falta hospedar o servidor (ex.: Render, Railway, Fly.io ou uma VPS com disco persistente) e publicar o site com `VITE_API_URL` apontando para ele. Para rodar mais de uma instância, trocar o SQLite por Postgres com restrição de exclusão (`EXCLUDE USING gist`) nos períodos.
-5. Integrar um provedor de pagamento (Pix/cartão) sem coletar cartão no front-end.
+5. Integrar um provedor de pagamento (Pix/cartão) sem coletar cartão no front-end. Para o Pix: trocar `pixReceiver` pela chave real ou, melhor, usar o Pix dinâmico do provedor, que confirma o pagamento sozinho (webhook) e dispensa o comprovante manual.
 6. Integrar assinatura eletrônica e submeter os modelos de contrato a revisão jurídica.
 7. Substituir fotos, imóveis e valores pelos reais.
 8. Definir o nome e o logo definitivos em `src/config/brand.ts` e `src/components/Brand.tsx`.
 
 ## 8. Limitações conhecidas
 
-- No modo demonstração, os dados ficam no navegador de quem usa e cada pessoa vê sua própria cópia. No modo API, todos compartilham o mesmo banco.
+- No modo demonstração, os dados ficam no navegador de quem usa e cada pessoa vê sua própria cópia. Os comprovantes também ficam no navegador, que tem espaço limitado (cerca de 5 MB): para muitos envios, use o modo API. No modo API, todos compartilham o mesmo banco.
 - No modo API, o perfil ainda é escolhido sem senha (cabeçalhos `X-Demo-Role`/`X-Demo-User`). As permissões já são checadas no servidor, e o item 3 só troca a forma de identificar o usuário (`session()` em `server/index.ts`).
 - Na página do Claude, o mapa só cobre a área da demo (zoom 12 a 16), e o PDF pede confirmação antes de baixar.
 
@@ -148,3 +157,5 @@ server/
 | 20/10/2026 | Repositório criado no GitHub |
 | 20/10/2026 | Repositório público + site no GitHub Pages com deploy automático |
 | 20/10/2026 | API + banco SQLite com reservas transacionais (modo API opcional) |
+| 20/10/2026 | Cabeçalho: Entrar, carrinho e conta distintos dos filtros |
+| 20/10/2026 | Pix por parcela (QR Code e copia e cola fictícios), comprovante e aprovação pelo admin |

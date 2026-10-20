@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type {
-  CartItem, Client, Contract, ContractTemplate, DateRange, PaymentMethod,
+  CartItem, Client, Contract, ContractTemplate, DateRange, Installment, PaymentMethod,
   PaymentTerms, Property, Reservation, Role,
 } from '@/types';
 import { properties as seedProperties } from '@/data/properties';
@@ -12,6 +12,7 @@ import { api, ApiError, type Snapshot } from '@/services/api';
 import { findConflict } from '@/lib/availability';
 import { buildInstallments, quote } from '@/lib/payment';
 import { todayIso } from '@/lib/dates';
+import type { ReceiptUpload } from '@/lib/receipt';
 
 // Store único = fonte de verdade de todas as telas. Dois modos:
 // - demonstração (padrão): o próprio store é o "banco de dados", persistido no localStorage;
@@ -33,6 +34,8 @@ interface State extends Snapshot {
   userId: string | null;
   cart: CartItem[];
   favorites: string[];
+  /** arquivos dos comprovantes (data URL) por id — só no modo demonstração; no modo API ficam no servidor */
+  receiptFiles: Record<string, string>;
   /** false até a primeira carga da API; no modo demonstração já começa pronto */
   ready: boolean;
   loadError: string | null;
@@ -51,7 +54,14 @@ interface State extends Snapshot {
   removeBlock(id: string): Promise<Result>;
   updateProperty(id: string, patch: Partial<Property>): Promise<Result>;
   setReservationStatus(id: string, status: Reservation['status']): Promise<Result>;
+  /** pagamento simulado de cartão (aprovação imediata) */
   payInstallment(reservationId: string, n: number): Promise<Result>;
+  /** cliente anexa o comprovante do Pix; a parcela fica em análise */
+  submitReceipt(reservationId: string, n: number, file: ReceiptUpload): Promise<Result>;
+  /** administrador aprova (vira paga) ou recusa (volta a aberta, com motivo) */
+  reviewInstallment(reservationId: string, n: number, approve: boolean, note?: string): Promise<Result>;
+  /** endereço para abrir o arquivo do comprovante */
+  receiptUrl(id: string): Promise<string>;
   saveTemplate(t: ContractTemplate): Promise<Result>;
   deleteTemplate(id: string): Promise<Result>;
   setContractStatus(id: string, status: Contract['status']): Promise<Result>;
@@ -73,6 +83,16 @@ const empty = (): Snapshot => ({ properties: [], blocks: [], reservations: [], c
 
 const uid = (p: string) => `${p}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 const OK: Result = { ok: true };
+const patchInstallment = (list: Reservation[], id: string, n: number, patch: (i: Installment) => Installment) =>
+  list.map((r) => (r.id !== id ? r : { ...r, installments: r.installments.map((i) => (i.n === n ? patch(i) : i)) }));
+
+/** localStorage cheio (muitos comprovantes) não pode derrubar o app: a gravação é ignorada com aviso. */
+const safeStorage = createJSONStorage(() => ({
+  getItem: (k: string) => { try { return localStorage.getItem(k); } catch { return null; } },
+  setItem: (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { console.warn('Armazenamento do navegador cheio; alterações não foram salvas.'); } },
+  removeItem: (k: string) => { try { localStorage.removeItem(k); } catch { /* sem armazenamento */ } },
+}));
+
 const message = (e: unknown) => (e instanceof Error ? e.message : 'Erro inesperado. Tente novamente.');
 
 export const useStore = create<State>()(
@@ -95,6 +115,7 @@ export const useStore = create<State>()(
         ...(apiMode ? empty() : seed()),
         cart: [],
         favorites: [],
+        receiptFiles: {},
         ready: !apiMode,
         loadError: null,
         syncError: null,
@@ -216,11 +237,42 @@ export const useStore = create<State>()(
 
         payInstallment: async (reservationId, n) => {
           if (apiMode) return remote('POST', `/reservations/${reservationId}/installments/${n}/pay`);
+          set((s) => ({ reservations: patchInstallment(s.reservations, reservationId, n, (i) => ({ ...i, status: 'pago', paidAt: todayIso() })) }));
+          return OK;
+        },
+
+        submitReceipt: async (reservationId, n, file) => {
+          if (apiMode) return remote('POST', `/reservations/${reservationId}/installments/${n}/receipt`, file);
+          const id = uid('rc');
+          const receipt = { id, name: file.name, type: file.type, size: file.size, uploadedAt: todayIso() };
+          set((s) => {
+            const old = s.reservations.find((r) => r.id === reservationId)?.installments.find((i) => i.n === n)?.receipt;
+            const files = { ...s.receiptFiles, [id]: file.dataUrl };
+            if (old) delete files[old.id]; // reenvio substitui o arquivo anterior
+            return {
+              receiptFiles: files,
+              reservations: patchInstallment(s.reservations, reservationId, n, (i) => ({ ...i, status: 'em-analise', receipt, reviewNote: undefined })),
+            };
+          });
+          return OK;
+        },
+
+        reviewInstallment: async (reservationId, n, approve, note) => {
+          if (apiMode) return remote('POST', `/reservations/${reservationId}/installments/${n}/review`, { approve, note });
           set((s) => ({
-            reservations: s.reservations.map((r) =>
-              r.id !== reservationId ? r : { ...r, installments: r.installments.map((i) => (i.n === n ? { ...i, status: 'pago' } : i)) }),
+            reservations: patchInstallment(s.reservations, reservationId, n, (i) =>
+              approve ? { ...i, status: 'pago', paidAt: todayIso(), reviewNote: undefined } : { ...i, status: 'aberto', reviewNote: note?.trim() || 'Comprovante não confirmado.' }),
           }));
           return OK;
+        },
+
+        receiptUrl: async (id) => {
+          if (!apiMode) {
+            const url = get().receiptFiles[id];
+            if (!url) throw new Error('Arquivo do comprovante não encontrado neste navegador.');
+            return url;
+          }
+          return URL.createObjectURL(await api<Blob>(get(), 'GET', `/receipts/${id}`, undefined, 'blob'));
         },
 
         saveTemplate: async (t) => {
@@ -254,14 +306,14 @@ export const useStore = create<State>()(
             if (r.ok) set({ cart: [], favorites: [] });
             return r;
           }
-          set({ ...seed(), cart: [], favorites: [] });
+          set({ ...seed(), cart: [], favorites: [], receiptFiles: {} });
           return OK;
         },
       };
     },
     apiMode
-      ? { name: 'sua-marca-api-v1', partialize: (s) => ({ role: s.role, userId: s.userId, cart: s.cart, favorites: s.favorites }) }
-      : { name: 'sua-marca-demo-v1', partialize: ({ ready: _r, loadError: _l, syncError: _s, ...rest }) => rest },
+      ? { name: 'sua-marca-api-v1', storage: safeStorage, partialize: (s) => ({ role: s.role, userId: s.userId, cart: s.cart, favorites: s.favorites }) }
+      : { name: 'sua-marca-demo-v1', storage: safeStorage, partialize: ({ ready: _r, loadError: _l, syncError: _s, ...rest }) => rest },
   ),
 );
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Users, MapPin, Download, Eye, CheckCircle2, Clock, PenLine } from 'lucide-react';
+import { CalendarDays, Users, MapPin, Download, Eye, PenLine, QrCode } from 'lucide-react';
 import { useStore } from '@/store';
 import { useMyReservations } from './ClientLayout';
 import { PropertyMap } from '@/components/PropertyMap';
@@ -12,7 +12,8 @@ import { circuits, pois } from '@/data/geo';
 import { contractContext, fillTemplate } from '@/lib/contract';
 import { downloadContractPdf } from '@/lib/pdf';
 import { signatureProvider } from '@/services';
-import type { Reservation } from '@/types';
+import { InstallmentPill, PixPayment } from '@/components/PixPayment';
+import type { Installment, Reservation } from '@/types';
 
 const resStatus = { pendente: { label: 'Pendente', cls: 'is-pending' }, confirmada: { label: 'Confirmada', cls: 'is-ok' }, cancelada: { label: 'Cancelada', cls: 'is-off' } };
 
@@ -62,15 +63,21 @@ export function ClientPayments() {
   const properties = useStore((s) => s.properties);
   const pay = useStore((s) => s.payInstallment);
   const [busy, setBusy] = useState('');
+  const [open, setOpen] = useState<{ r: Reservation; n: number } | null>(null);
+  // lê a parcela sempre do store, para o modal refletir o envio do comprovante na hora
+  const openRes = open && mine.find((r) => r.id === open.r.id);
+  const openInst = openRes?.installments.find((i) => i.n === open!.n);
   if (!mine.length) return <EmptyState title="Nenhum pagamento" text="Os pagamentos aparecem depois de uma reserva." />;
   return (
     <div className="stack">
       {mine.map((r) => {
         const p = properties.find((x) => x.id === r.propertyId)!;
+        const pix = r.method === 'pix';
+        const nextCard = r.installments.find((x) => x.status !== 'pago')?.n;
         return (
           <section key={r.id} className="panel">
             <header className="panel-head">
-              <div><h2>{p.title}</h2><p className="muted small">{r.code} · {r.method === 'pix' ? 'Pix' : 'Cartão de crédito'} · total {brl(r.total)}</p></div>
+              <div><h2>{p.title}</h2><p className="muted small">{r.code} · {pix ? 'Pix' : 'Cartão de crédito'} · total {brl(r.total)}</p></div>
             </header>
             <table className="table">
               <thead><tr><th>Pagamento</th><th>Vencimento</th><th className="num">Valor</th><th>Situação</th><th /></tr></thead>
@@ -80,9 +87,14 @@ export function ClientPayments() {
                     <td>{i.label}</td>
                     <td>{fmtLong(i.dueDate)}</td>
                     <td className="num">{brlExact(i.amount)}</td>
-                    <td>{i.status === 'pago' ? <span className="pill is-ok"><CheckCircle2 size={13} />Pago</span> : <span className="pill is-pending"><Clock size={13} />Em aberto</span>}</td>
+                    <td><InstallmentPill i={i} /></td>
                     <td className="right">
-                      {i.status !== 'pago' && i.n === r.installments.find((x) => x.status !== 'pago')?.n && (
+                      {pix && r.status !== 'cancelada' && i.status !== 'pago' && (
+                        <Button size="sm" variant={i.status === 'em-analise' ? 'ghost' : 'secondary'} onClick={() => setOpen({ r, n: i.n })}>
+                          {i.status === 'em-analise' ? 'Ver envio' : <><QrCode size={15} />Pagar com Pix</>}
+                        </Button>
+                      )}
+                      {!pix && i.status !== 'pago' && i.n === nextCard && (
                         <Button size="sm" variant="secondary" loading={busy === `${r.id}-${i.n}`} onClick={async () => { setBusy(`${r.id}-${i.n}`); await new Promise((x) => setTimeout(x, 700)); await pay(r.id, i.n); setBusy(''); }}>
                           Simular pagamento
                         </Button>
@@ -95,10 +107,15 @@ export function ClientPayments() {
           </section>
         );
       })}
-      <p className="fineprint">Pagamentos simulados. Nenhuma transação é processada.</p>
+      <Modal open={!!openInst} onClose={() => setOpen(null)} title={openInst ? `Pagar ${pixTitle(openInst)} com Pix` : 'Pix'} wide>
+        {openRes && openInst && <PixPayment reservation={openRes} installment={openInst} />}
+      </Modal>
+      <p className="fineprint">Pix: pague pelo QR Code ou copia e cola e anexe o comprovante; cada parcela é confirmada pelo administrador. Cartão: pagamento simulado. Nenhuma transação real é processada.</p>
     </div>
   );
 }
+
+const pixTitle = (i: Installment) => (i.n === 0 ? i.label.toLowerCase() : i.label.replace('Parcela', 'parcela'));
 
 export function useContractText(r?: Reservation) {
   const clients = useStore((s) => s.clients);
