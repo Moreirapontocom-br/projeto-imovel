@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+body{margin:0;background:#FFFFFF;color:#061B37;font-family:"Inter",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1767A1}a:hover{color:#061B37}
+*:focus-visible{outline:2px solid #061B37;outline-offset:3px}
+.leaflet-container{font-family:"Inter",Arial,sans-serif;background:#EEF1F4}
+.leaflet-div-icon{background:none;border:none}
+.leaflet-bar{border:none!important;box-shadow:0 2px 10px rgb(3 20 43 / 12%)!important;border-radius:12px!important;overflow:hidden}
+.leaflet-bar a{width:40px!important;height:40px!important;line-height:40px!important;color:#061B37!important}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="position:sticky;top:0;z-index:1000;background:#FFFFFF;border-bottom:1px solid #DCE0E4">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px clamp(16px,3.5vw,54px);min-height:56px;flex-wrap:wrap">
+      <a href="#" aria-label="Página inicial" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#061B37">
+        <span style="width:36px;height:36px;border-radius:10px;background:#061B37;display:grid;place-items:center">
+          <span style="width:12px;height:12px;background:#DEAD5B;transform:rotate(45deg);border-radius:2px"></span>
+        </span>
+        <span style="display:flex;flex-direction:column;line-height:1.1">
+          <span style="font-weight:700;font-size:16px;letter-spacing:-0.02em">Sua Marca</span>
+          <span style="font-size:12px;color:#BC8733;font-weight:600">Carnaval de Salvador</span>
+        </span>
+      </a>
+      <div role="search" style="display:flex;align-items:center;background:#FFFFFF;border:1px solid #DCE0E4;border-radius:999px;box-shadow:0 2px 10px rgb(3 20 43 / 12%);padding:6px 6px 6px 8px;flex:0 1 620px;min-width:0">
+        <button style="flex:1 1 0;min-width:0;text-align:left;background:none;border:none;padding:6px 16px;border-radius:999px;cursor:pointer;font:inherit;color:#061B37;display:flex;flex-direction:column;gap:2px" style-hover="background:#F7F8FA">
+          <span style="font-size:12px;font-weight:600">Bairro</span>
+          <span style="font-size:14px;color:#626A73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ bairroLabel }}</span>
+        </button>
+        <span style="width:1px;height:28px;background:#DCE0E4"></span>
+        <button style="flex:1 1 0;min-width:0;text-align:left;background:none;border:none;padding:6px 16px;border-radius:999px;cursor:pointer;font:inherit;color:#061B37;display:flex;flex-direction:column;gap:2px" style-hover="background:#F7F8FA">
+          <span style="font-size:12px;font-weight:600">Período</span>
+          <span style="font-size:14px;color:#626A73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Carnaval 2027</span>
+        </button>
+        <span style="width:1px;height:28px;background:#DCE0E4"></span>
+        <div style="flex:1 1 0;min-width:0;padding:6px 8px 6px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:12px;font-weight:600">Hóspedes</span>
+            <span style="font-size:14px;color:#626A73;white-space:nowrap">{{ guests }} pessoas</span>
+          </span>
+          <span style="display:flex;gap:4px">
+            <button aria-label="Menos hóspedes" onClick="{{ decGuests }}" style="width:28px;height:28px;border-radius:999px;border:1px solid #DCE0E4;background:#FFFFFF;color:#061B37;cursor:pointer;font:600 14px Inter">–</button>
+            <button aria-label="Mais hóspedes" onClick="{{ incGuests }}" style="width:28px;height:28px;border-radius:999px;border:1px solid #DCE0E4;background:#FFFFFF;color:#061B37;cursor:pointer;font:600 14px Inter">+</button>
+          </span>
+        </div>
+        <button aria-label="Buscar" style="width:44px;height:44px;flex:none;border-radius:999px;background:#061B37;border:none;display:grid;place-items:center;cursor:pointer" style-hover="background:#03142B">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+        </button>
+      </div>
+      <nav style="display:flex;align-items:center;gap:8px">
+        <a href="#" style="font-size:14px;font-weight:600;color:#061B37;text-decoration:none;padding:12px 14px;border-radius:999px" style-hover="background:#F7F8FA">Anunciar imóvel</a>
+        <button aria-label="Carrinho, {{ cartCount }} itens" style="position:relative;width:44px;height:44px;border-radius:999px;border:1px solid #DCE0E4;background:#FFFFFF;display:grid;place-items:center;cursor:pointer" style-hover="background:#F7F8FA">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#061B37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11h11L21 8H6.2"></path><circle cx="9" cy="20" r="1.3"></circle><circle cx="18" cy="20" r="1.3"></circle></svg>
+          <span style="position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#BC8733;color:#061B37;font-size:12px;font-weight:700;display:grid;place-items:center">{{ cartCount }}</span>
+        </button>
+        <button aria-label="Conta e menu" style="height:44px;padding:0 6px 0 14px;border-radius:999px;border:1px solid #DCE0E4;background:#FFFFFF;display:flex;align-items:center;gap:10px;cursor:pointer" style-hover="background:#F7F8FA">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#061B37" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg>
+          <span style="width:32px;height:32px;border-radius:999px;background:#061B37;color:#DEAD5B;font-size:13px;font-weight:700;display:grid;place-items:center">A</span>
+        </button>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 clamp(16px,3.5vw,54px) 14px;overflow-x:auto;scrollbar-width:none">
+      <button style="display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 16px;border:1px solid #DCE0E4;border-radius:999px;background:#FFFFFF;color:#061B37;font:500 14px/1.2 Inter,Arial,sans-serif;cursor:pointer;flex:none" style-hover="background:#F7F8FA">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#061B37" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="17" x2="14" y2="17"></line></svg>
+        Filtros
+      </button>
+      <span style="width:1px;height:24px;background:#DCE0E4;flex:none;margin:0 4px"></span>
+      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="10">
+        <button aria-pressed="{{ c.pressed }}" onClick="{{ c.toggle }}" style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 16px;border:1px solid {{ c.border }};border-radius:999px;background:{{ c.bg }};color:#061B37;font:500 14px/1.2 Inter,Arial,sans-serif;cursor:pointer;flex:none;white-space:nowrap;transition:background 150ms ease,border-color 150ms ease" style-hover="background:#F7F8FA">
+          <sc-if value="{{ c.pressed }}"><span style="width:6px;height:6px;border-radius:999px;background:#BC8733"></span></sc-if>
+          {{ c.label }}
+        </button>
+      </sc-for>
+      <sc-if value="{{ hasFilters }}">
+        <button onClick="{{ clearFilters }}" style="min-height:40px;padding:8px 12px;border:none;background:none;color:#061B37;font:600 14px/1.2 Inter,Arial,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer;flex:none;white-space:nowrap">Limpar filtros</button>
+      </sc-if>
+    </div>
+  </header>
+
+  <main style="flex:1;display:grid;grid-template-columns:{{ layoutCols }};gap:48px;padding:28px clamp(16px,3.5vw,54px) 48px;align-items:start">
+    <section style="display:{{ listDisplay }};min-width:0" aria-label="Lista de imóveis">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+        <h1 aria-live="polite" style="margin:0;font-size:24px;line-height:1.3;font-weight:700;letter-spacing:-0.02em">{{ countLabel }}</h1>
+        <span style="font-size:12px;font-weight:600;color:#9B650B;background:#FBF8F1;border:1px solid #EADBBF;padding:6px 12px;border-radius:999px">Demonstração · dados ilustrativos</span>
+      </div>
+      <sc-if value="{{ isEmpty }}">
+        <div style="border:1px dashed #DCE0E4;border-radius:20px;padding:48px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px">
+          <span style="font-size:18px;font-weight:700">Nenhum imóvel com esses filtros</span>
+          <span style="font-size:15px;color:#626A73">Tente outro bairro ou remova algum filtro.</span>
+          <button onClick="{{ clearFilters }}" style="margin-top:8px;min-height:44px;padding:0 22px;border-radius:999px;border:1px solid #061B37;background:#FFFFFF;color:#061B37;font:600 14px Inter,Arial,sans-serif;cursor:pointer">Limpar filtros</button>
+        </div>
+      </sc-if>
+      <div style="display:grid;grid-template-columns:{{ cardCols }};gap:36px 26px">
+        <sc-for list="{{ items }}" as="p" hint-placeholder-count="4">
+          <article id="card-{{ p.id }}" onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="display:flex;flex-direction:column;gap:12px;border-radius:24px;padding:6px;margin:-6px;box-shadow:{{ p.ring }};transition:box-shadow 200ms ease">
+            <div style="position:relative;aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:repeating-linear-gradient(135deg,#F1F3F6 0 10px,#E9ECF0 10px 20px)">
+              <div style="position:absolute;inset:0;display:grid;place-items:center">
+                <span style="font:500 12px ui-monospace,Menlo,monospace;color:#626A73;background:#FFFFFFcc;padding:4px 8px;border-radius:6px">{{ p.photo }}</span>
+              </div>
+              <span style="position:absolute;top:14px;left:14px;background:#FFFFFF;color:#061B37;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;box-shadow:0 2px 6px rgb(3 20 43 / 12%)">{{ p.badge }}</span>
+              <button aria-label="Favoritar {{ p.title }}" aria-pressed="{{ p.fav }}" onClick="{{ p.toggleFav }}" style="position:absolute;top:8px;right:8px;width:44px;height:44px;border:none;background:none;display:grid;place-items:center;cursor:pointer">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="{{ p.heartFill }}" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"></path></svg>
+              </button>
+              <span style="position:absolute;bottom:12px;left:12px;font-size:12px;font-weight:600;color:#FFFFFF;background:#03142BB3;padding:4px 10px;border-radius:999px">Imagem ilustrativa</span>
+              <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:5px">
+                <span style="width:6px;height:6px;border-radius:999px;background:#FFFFFF"></span>
+                <span style="width:6px;height:6px;border-radius:999px;background:#FFFFFF99"></span>
+                <span style="width:6px;height:6px;border-radius:999px;background:#FFFFFF99"></span>
+                <span style="width:6px;height:6px;border-radius:999px;background:#FFFFFF99"></span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px;padding:0 4px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                <h3 style="margin:0;font-size:16px;line-height:1.4;font-weight:600;letter-spacing:-0.01em">{{ p.title }}</h3>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:{{ p.statusColor }};white-space:nowrap">
+                  <span style="width:8px;height:8px;border-radius:999px;background:{{ p.statusColor }}"></span>{{ p.status }}
+                </span>
+              </div>
+              <p style="margin:0;font-size:15px;line-height:1.45;color:#626A73;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ p.desc }}</p>
+              <p style="margin:0;font-size:15px;line-height:1.45;color:#626A73">{{ p.specs }}</p>
+              <p style="margin:0;font-size:15px;line-height:1.45;color:#626A73">{{ p.distance }}</p>
+              <div style="display:flex;align-items:baseline;gap:6px;margin-top:8px">
+                <span style="font-size:18px;font-weight:700;letter-spacing:-0.01em;color:{{ priceColor }}">{{ p.total }}</span>
+                <span style="font-size:14px;color:#626A73">total do período</span>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+                <span style="font-size:13px;font-weight:600;color:#061B37;background:#FBF8F1;padding:5px 10px;border-radius:8px">{{ p.installments }}</span>
+                <sc-if value="{{ p.facilitado }}">
+                  <span style="font-size:13px;font-weight:600;color:#061B37;border:1px solid #BC8733;padding:4px 10px;border-radius:8px">Pagamento facilitado</span>
+                </sc-if>
+              </div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+      <p style="margin:40px 0 0;font-size:12px;line-height:1.4;color:#626A73;max-width:60ch;text-wrap:pretty">Imóveis, fotos, valores e condições exibidos são demonstrativos. Distâncias até o circuito são estimativas em linha reta. Parcelamento sujeito a condições cadastradas e validadas.</p>
+    </section>
+
+    <aside aria-label="Mapa de imóveis" style="display:{{ mapDisplay }};position:sticky;top:{{ mapTop }};height:{{ mapHeight }};min-height:420px;border-radius:20px;overflow:hidden;background:#EEF1F4">
+      <div ref="{{ mapRef }}" style="position:absolute;inset:0"></div>
+      <div style="position:absolute;left:12px;bottom:12px;z-index:500;background:#FFFFFF;border-radius:12px;padding:8px 12px;box-shadow:0 2px 10px rgb(3 20 43 / 12%);font-size:12px;color:#626A73">Localizações aproximadas · demonstração</div>
+    </aside>
+  </main>
+
+  <sc-if value="{{ isNarrow }}">
+    <button onClick="{{ toggleView }}" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1100;min-height:48px;padding:0 22px;border-radius:999px;border:none;background:#061B37;color:#FFFFFF;font:600 14px Inter,Arial,sans-serif;box-shadow:0 18px 48px rgb(3 20 43 / 20%);cursor:pointer;display:flex;align-items:center;gap:8px" style-hover="background:#03142B">
+      <span style="width:8px;height:8px;background:#DEAD5B;transform:rotate(45deg)"></span>{{ toggleLabel }}
+    </button>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showMap&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;hideUnavailable&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;goldPrices&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const PROPS = [
+  { id: 'brr-01', bairro: 'Barra', lat: -13.0093, lng: -38.5305, title: 'Apartamento · Barra', desc: 'Varanda voltada para a orla, a poucos passos do Farol', specs: '3 quartos · 6 hóspedes · 2 banheiros', km: 0.3, cap: 6, total: 18900, n: 6, status: 'Disponível', badge: 'Próximo ao circuito', ac: true, wifi: true, park: false, fac: true, photo: 'foto · sala com varanda' },
+  { id: 'ond-02', bairro: 'Ondina', lat: -13.0108, lng: -38.5105, title: 'Apartamento · Ondina', desc: 'Andar alto com vista para o mar e acesso direto ao circuito', specs: '2 quartos · 4 hóspedes · 2 banheiros', km: 0.1, cap: 4, total: 14500, n: 6, status: 'Disponível', badge: 'Vista para o mar', ac: true, wifi: true, park: true, fac: false, photo: 'foto · vista da varanda' },
+  { id: 'rvm-03', bairro: 'Rio Vermelho', lat: -13.0118, lng: -38.4905, title: 'Casa · Rio Vermelho', desc: 'Casa ampla perto dos bares e da orla, ideal para grupos', specs: '4 quartos · 10 hóspedes · 3 banheiros', km: 1.6, cap: 10, total: 26400, n: 8, status: 'Reservado', badge: 'Famílias', ac: true, wifi: true, park: true, fac: true, photo: 'foto · fachada' },
+  { id: 'grc-04', bairro: 'Graça', lat: -13.0005, lng: -38.5242, title: 'Apartamento · Graça', desc: 'Rua tranquila, prédio com portaria 24h e elevador', specs: '2 quartos · 5 hóspedes · 1 banheiro', km: 0.9, cap: 5, total: 9800, n: 4, status: 'Disponível', badge: 'Portaria 24h', ac: true, wifi: true, park: false, fac: false, photo: 'foto · quarto principal' },
+  { id: 'cgr-05', bairro: 'Campo Grande', lat: -12.9862, lng: -38.5205, title: 'Apartamento · Campo Grande', desc: 'Janela para o circuito Osmar, perto da praça', specs: '3 quartos · 7 hóspedes · 2 banheiros', km: 0.1, cap: 7, total: 16200, n: 6, status: 'Disponível', badge: 'Próximo ao circuito', ac: false, wifi: true, park: false, fac: true, photo: 'foto · sala de estar' },
+  { id: 'brr-06', bairro: 'Barra', lat: -13.0068, lng: -38.5268, title: 'Studio · Barra', desc: 'Compacto e funcional, ideal para casal', specs: '1 quarto · 2 hóspedes · 1 banheiro', km: 0.4, cap: 2, total: 6900, n: 3, status: 'Disponível', badge: 'Próximo ao circuito', ac: true, wifi: true, park: false, fac: false, photo: 'foto · studio' },
+  { id: 'pit-07', bairro: 'Pituba', lat: -13.0003, lng: -38.4605, title: 'Apartamento · Pituba', desc: 'Condomínio com piscina, longe do agito', specs: '3 quartos · 6 hóspedes · 2 banheiros', km: 4.8, cap: 6, total: 8700, n: 4, status: 'Disponível', badge: 'Piscina', ac: true, wifi: true, park: true, fac: false, photo: 'foto · área da piscina' },
+  { id: 'ond-08', bairro: 'Ondina', lat: -13.0088, lng: -38.5148, title: 'Cobertura · Ondina', desc: 'Terraço privativo com vista panorâmica da orla', specs: '4 quartos · 8 hóspedes · 4 banheiros', km: 0.2, cap: 8, total: 34000, n: 10, status: 'Indisponível', badge: 'Vista para o mar', ac: true, wifi: true, park: true, fac: true, photo: 'foto · terraço' },
+];
+const BAIRROS = ['Barra', 'Ondina', 'Rio Vermelho', 'Graça', 'Campo Grande', 'Pituba'];
+const EXTRAS = [
+  { key: 'near', label: 'Até 1 km do circuito', test: p => p.km <= 1 },
+  { key: 'avail', label: 'Somente disponíveis', test: p => p.status === 'Disponível' },
+  { key: 'ac', label: 'Ar-condicionado', test: p => p.ac },
+  { key: 'wifi', label: 'Wi-Fi', test: p => p.wifi },
+  { key: 'park', label: 'Estacionamento', test: p => p.park },
+];
+const brl = v => 'R$ ' + v.toLocaleString('pt-BR');
+const STATUS_COLOR = { 'Disponível': '#167347', 'Reservado': '#9B650B', 'Indisponível': '#68717C' };
+
+class Component extends DCLogic {
+  state = { bairros: [], extras: [], guests: 4, favs: {}, hoverId: null, selectedId: null, w: window.innerWidth, view: 'list' };
+  mapRef = React.createRef();
+  markers = {};
+
+  componentDidMount() {
+    this.onResize = () => this.setState({ w: window.innerWidth });
+    window.addEventListener('resize', this.onResize);
+    const tryInit = () => (window.L && this.mapRef.current) ? this.initMap() : (this.t = setTimeout(tryInit, 100));
+    tryInit();
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.onResize); clearTimeout(this.t); this.map && this.map.remove(); }
+  componentDidUpdate() {
+    if (this.map) { this.syncMarkers(); setTimeout(() => this.map && this.map.invalidateSize(), 0); }
+  }
+
+  initMap() {
+    const L = window.L;
+    this.map = L.map(this.mapRef.current, { zoomControl: false, scrollWheelZoom: true, attributionControl: true }).setView([-13.0, -38.505], 13);
+    L.control.zoom({ position: 'topright' }).addTo(this.map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19,
+    }).addTo(this.map);
+    this.syncMarkers();
+  }
+
+  icon(p, active) {
+    const bg = active ? '#061B37' : '#FFFFFF', fg = active ? '#FFFFFF' : '#061B37';
+    const k = Math.round(p.total / 100) / 10;
+    const label = 'R$ ' + k.toLocaleString('pt-BR') + ' mil';
+    const html = `<div style="transform:translate(-50%,-50%);display:inline-block;white-space:nowrap;background:${bg};color:${fg};font:700 13px Inter,Arial,sans-serif;padding:6px 10px;border-radius:999px;box-shadow:0 2px 6px rgb(3 20 43 / 20%);border:1px solid ${active ? '#061B37' : '#DCE0E4'};transition:transform 150ms ease;${active ? 'transform:translate(-50%,-50%) scale(1.08);' : ''}">${label}</div>`;
+    return window.L.divIcon({ html, className: '', iconSize: [0, 0] });
+  }
+
+  syncMarkers() {
+    const L = window.L, visible = new Set(this.filtered().map(p => p.id));
+    PROPS.forEach(p => {
+      const active = p.id === this.state.hoverId || p.id === this.state.selectedId;
+      let m = this.markers[p.id];
+      if (!visible.has(p.id)) { if (m) { m.remove(); delete this.markers[p.id]; } return; }
+      if (!m) {
+        m = L.marker([p.lat, p.lng], { icon: this.icon(p, active), keyboard: true, title: p.title + ', ' + brl(p.total) }).addTo(this.map);
+        m.on('click', () => this.selectFromMap(p.id));
+        m._active = active; this.markers[p.id] = m;
+      } else if (m._active !== active) { m.setIcon(this.icon(p, active)); m._active = active; }
+      m.setZIndexOffset(active ? 1000 : 0);
+    });
+  }
+
+  selectFromMap(id) {
+    const narrow = this.state.w < 1024;
+    this.setState({ selectedId: id, view: narrow ? 'list' : this.state.view }, () => {
+      const p = PROPS.find(x => x.id === id);
+      this.map.panTo([p.lat, p.lng]);
+      setTimeout(() => {
+        const el = document.getElementById('card-' + id);
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 200, behavior: 'smooth' });
+      }, 50);
+    });
+  }
+
+  filtered() {
+    const { bairros, extras, guests } = this.state;
+    return PROPS.filter(p =>
+      (!bairros.length || bairros.includes(p.bairro)) &&
+      p.cap >= guests &&
+      extras.every(k => EXTRAS.find(e => e.key === k).test(p)) &&
+      (this.props.hideUnavailable === false || p.status !== 'Indisponível'));
+  }
+
+  toggleIn(key, val) { this.setState(s => ({ [key]: s[key].includes(val) ? s[key].filter(x => x !== val) : [...s[key], val] })); }
+
+  renderVals() {
+    const s = this.state, list = this.filtered();
+    const narrow = s.w < 1024, showMap = this.props.showMap ?? true;
+    const chip = (label, pressed, toggle) => ({ label, pressed, toggle, bg: pressed ? '#FBF8F1' : '#FFFFFF', border: pressed ? '#061B37' : '#DCE0E4' });
+    const chips = [
+      ...BAIRROS.map(b => chip(b, s.bairros.includes(b), () => this.toggleIn('bairros', b))),
+      ...EXTRAS.map(e => chip(e.label, s.extras.includes(e.key), () => this.toggleIn('extras', e.key))),
+    ];
+    const items = list.map(p => {
+      const active = p.id === s.hoverId || p.id === s.selectedId;
+      return {
+        ...p,
+        total: brl(p.total),
+        installments: `ou ${p.n}x de ${brl(Math.round(p.total / p.n))}*`,
+        distance: p.km <= 0.15 ? 'No circuito (estimativa)' : `${p.km.toLocaleString('pt-BR')} km do circuito (estimativa)`,
+        facilitado: p.fac,
+        statusColor: STATUS_COLOR[p.status],
+        fav: !!s.favs[p.id],
+        heartFill: s.favs[p.id] ? '#BC8733' : 'rgba(3,20,43,0.45)',
+        ring: active ? '0 0 0 2px #061B37' : '0 0 0 0 transparent',
+        enter: () => this.setState({ hoverId: p.id }),
+        leave: () => this.setState({ hoverId: null }),
+        toggleFav: () => this.setState(st => ({ favs: { ...st.favs, [p.id]: !st.favs[p.id] } })),
+      };
+    });
+    const twoCards = s.w >= 768 && (!(showMap && !narrow) || s.w >= 1200);
+    return {
+      chips, items,
+      guests: s.guests,
+      incGuests: () => this.setState(st => ({ guests: Math.min(12, st.guests + 1) })),
+      decGuests: () => this.setState(st => ({ guests: Math.max(1, st.guests - 1) })),
+      bairroLabel: s.bairros.length ? s.bairros.join(', ') : 'Todos os bairros',
+      cartCount: Object.values(s.favs).filter(Boolean).length,
+      hasFilters: s.bairros.length + s.extras.length > 0,
+      clearFilters: () => this.setState({ bairros: [], extras: [] }),
+      countLabel: list.length === 1 ? '1 imóvel para o Carnaval' : `${list.length} imóveis para o Carnaval`,
+      isEmpty: list.length === 0,
+      priceColor: (this.props.goldPrices ?? false) ? '#9B650B' : '#061B37',
+      layoutCols: !narrow && showMap ? 'minmax(0,1.1fr) minmax(0,1fr)' : 'minmax(0,1fr)',
+      cardCols: twoCards ? 'repeat(2,minmax(0,1fr))' : 'minmax(0,1fr)',
+      listDisplay: narrow && s.view === 'map' ? 'none' : 'block',
+      mapDisplay: !showMap ? 'none' : (narrow && s.view !== 'map' ? 'none' : 'block'),
+      mapTop: narrow ? '170px' : '180px',
+      mapHeight: narrow ? 'calc(100vh - 200px)' : 'calc(100vh - 212px)',
+      mapRef: this.mapRef,
+      isNarrow: narrow && showMap,
+      toggleView: () => this.setState(st => ({ view: st.view === 'map' ? 'list' : 'map' })),
+      toggleLabel: s.view === 'map' ? 'Mostrar lista' : 'Mostrar mapa',
+    };
+  }
+}
+</script>
+</body>
+</html>

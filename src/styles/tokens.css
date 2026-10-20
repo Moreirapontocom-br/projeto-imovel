@@ -1,0 +1,44 @@
+/* Tokens do design system (Real estate design system/uploads/design-system-imobiliaria-carnaval.md) */
+:root {
+  --navy: #061B37;
+  --navy-deep: #03142B;
+  --gold: #BC8733;
+  --gold-light: #DEAD5B;
+  --gold-ink: #8A5F1C; /* dourado para texto em fundo claro (contraste AA) */
+  --blue: #1767A1;
+
+  --text: #061B37;
+  --text-2: #4F5862;
+  --text-3: #626A73;
+  --inverse: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-soft: #F7F8FA;
+  --surface-warm: #FBF8F1;
+  --surface-sunk: #EEF1F4;
+  --border: #DCE0E4;
+  --border-strong: #C4CAD1;
+
+  --success: #167347;
+  --error: #B42318;
+  --warning: #9B650B;
+
+  --font: "Inter", Arial, sans-serif;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-card: 20px;
+  --r-pill: 999px;
+
+  --sh-search: 0 2px 10px rgb(3 20 43 / 12%);
+  --sh-pin: 0 2px 6px rgb(3 20 43 / 20%);
+  --sh-pop: 0 8px 28px rgb(3 20 43 / 16%);
+  --sh-modal: 0 18px 48px rgb(3 20 43 / 20%);
+
+  --gutter: clamp(16px, 3.6vw, 54px);
+  --header-h: 80px;
+  --max: 1760px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --fast: 150ms ease;
+  --base: 220ms var(--ease);
+}
