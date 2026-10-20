@@ -31,7 +31,7 @@ export function Header({ children, below, wide }: { children?: ReactNode; below?
         <nav className="sh-right" aria-label="Conta">
           {role === 'cliente' && <NavLink to="/cliente" className="sh-link">Minhas reservas</NavLink>}
           {role === 'admin' && <NavLink to="/admin" className="sh-link">Painel admin</NavLink>}
-          {role === 'visitante' && <NavLink to="/buscar" className="sh-link">Ver todos os imóveis</NavLink>}
+          {role === 'visitante' && <NavLink to="/entrar" className="sh-link">Entrar</NavLink>}
           <Link to="/carrinho" className="icon-btn icon-btn-outline sh-cart" aria-label={`Carrinho, ${cartCount} ${cartCount === 1 ? 'item' : 'itens'}`}>
             <ShoppingBag size={19} strokeWidth={1.9} />
             {cartCount > 0 && <span className="count">{cartCount}</span>}

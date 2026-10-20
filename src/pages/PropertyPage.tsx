@@ -58,7 +58,10 @@ export default function PropertyPage() {
   function add(goCheckout: boolean) {
     if (!p) return;
     setError('');
-    if (!range) return setError('Escolha as datas de entrada e saída no calendário.');
+    if (!range) {
+      document.getElementById('disponibilidade')?.scrollIntoView({ behavior: 'smooth' });
+      return setError('Escolha as datas de entrada e saída no calendário.');
+    }
     const r = addToCart(p.id, range, guests);
     if (!r.ok) return setError(`${r.error}. Escolha outro período.`);
     nav(goCheckout ? '/checkout' : '/carrinho');
@@ -179,6 +182,13 @@ export default function PropertyPage() {
           </aside>
         </div>
       </main>
+      <div className="book-bar">
+        <span>
+          <strong>{q ? brl(q.total) : `${brl(p.nightly)} / noite`}</strong>
+          <a href="#disponibilidade">{range ? `${fmtRange(range)} · ${q?.nights} noites` : 'Escolha as datas'}</a>
+        </span>
+        <Button onClick={() => add(true)} disabled={!!conflict}>Reservar</Button>
+      </div>
       <Footer />
 
       <Modal open={gallery} onClose={() => setGallery(false)} title={`Fotos · ${p.title}`} wide>

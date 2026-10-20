@@ -16,10 +16,13 @@ interface Props {
 const WEEK = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const CARNIVAL = new Set(eachNight({ start: brand.defaultRange.start, end: addDays(brand.defaultRange.end, 1) }));
 
-export function DateRangeCalendar({ value, onChange, busy = new Map(), minNights = 1, months = 2, readOnly }: Props) {
+export function DateRangeCalendar({ value, onChange, busy = new Map(), minNights = 1, months: wanted = 2, readOnly }: Props) {
   const win = brand.calendarWindow;
   const firstMonth = win.start.slice(0, 8) + '01';
-  const [offset, setOffset] = useState(value ? Math.max(0, monthDiff(firstMonth, value.start.slice(0, 8) + '01') - (months - 1)) : 0);
+  // em telas estreitas mostra um mês só — o do período selecionado (ou o do Carnaval)
+  const months = useNarrow() ? 1 : wanted;
+  const focusMonth = (value?.start ?? brand.defaultRange.start).slice(0, 8) + '01';
+  const [offset, setOffset] = useState(Math.max(0, monthDiff(firstMonth, focusMonth) - (months - 1)));
   const [anchor, setAnchor] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
@@ -108,6 +111,11 @@ export function DateRangeCalendar({ value, onChange, busy = new Map(), minNights
       <p className="cal-msg" role="status">{msg || (anchor ? 'Agora escolha a data de saída.' : '')}</p>
     </div>
   );
+}
+
+function useNarrow() {
+  const [narrow] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 700px)').matches);
+  return narrow;
 }
 
 function daysOf(monthIso: string) {

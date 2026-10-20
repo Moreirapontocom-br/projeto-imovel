@@ -73,13 +73,14 @@ export function Modal({ open, onClose, title, children, footer, wide }: { open: 
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    ref.current?.querySelector<HTMLElement>('input,textarea,select,button:not(.modal-x)')?.focus();
+    // foca o primeiro campo; sem campos, foca o próprio diálogo (sem anel de foco em botão ao abrir)
+    (ref.current?.querySelector<HTMLElement>('input,textarea,select') ?? ref.current)?.focus();
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; prev?.focus(); };
   }, [open]);
   if (!open) return null;
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div ref={ref} className={`modal ${wide ? 'modal-wide' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
+      <div ref={ref} tabIndex={-1} className={`modal ${wide ? 'modal-wide' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <header className="modal-head">
           <IconButton label="Fechar" className="modal-x" onClick={onClose}><X size={18} /></IconButton>
           <h2>{title}</h2>

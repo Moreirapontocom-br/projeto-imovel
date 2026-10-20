@@ -82,7 +82,7 @@ export function ClientPayments() {
                     <td className="num">{brlExact(i.amount)}</td>
                     <td>{i.status === 'pago' ? <span className="pill is-ok"><CheckCircle2 size={13} />Pago</span> : <span className="pill is-pending"><Clock size={13} />Em aberto</span>}</td>
                     <td className="right">
-                      {i.status !== 'pago' && (
+                      {i.status !== 'pago' && i.n === r.installments.find((x) => x.status !== 'pago')?.n && (
                         <Button size="sm" variant="secondary" loading={busy === `${r.id}-${i.n}`} onClick={async () => { setBusy(`${r.id}-${i.n}`); await new Promise((x) => setTimeout(x, 700)); pay(r.id, i.n); setBusy(''); }}>
                           Simular pagamento
                         </Button>

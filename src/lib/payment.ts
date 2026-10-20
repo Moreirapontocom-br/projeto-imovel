@@ -37,8 +37,12 @@ export function buildInstallments(
   const rate = method === 'cartao' ? terms.cardInterestPercentMonth / 100 : 0;
   const each = rate > 0 ? balance * rate / (1 - Math.pow(1 + rate, -n)) : balance / n;
   const list: Installment[] = [{ n: 0, label: 'Entrada', dueDate: startIso, amount: down, status: 'aberto' }];
+  const eachR = round2(each);
+  const financed = rate > 0 ? round2(each * n) : balance;
   for (let i = 1; i <= n; i++) {
-    list.push({ n: i, label: `Parcela ${i}/${n}`, dueDate: addMonths(startIso, i), amount: round2(each), status: 'aberto' });
+    // a última parcela absorve a diferença de centavos do arredondamento
+    const amount = i < n ? eachR : round2(financed - eachR * (n - 1));
+    list.push({ n: i, label: `Parcela ${i}/${n}`, dueDate: addMonths(startIso, i), amount, status: 'aberto' });
   }
   return list;
 }
