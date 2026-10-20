@@ -2,10 +2,11 @@
 
 Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para o Carnaval de Salvador, feito para apresentação comercial.
 
-- **Link para apresentar (página privada do Claude):** https://claude.ai/artifact/QLnmYYVxCJ3Vr9PUto56Yr
-  Só você vê até compartilhar pelo menu *Compartilhar* da página.
+- **Link público para o cliente:** https://moreirapontocom-br.github.io/projeto-imovel/
+  Publicado no GitHub Pages; atualiza sozinho a cada envio para a branch `main`.
+- **Página privada do Claude (alternativa):** https://claude.ai/artifact/QLnmYYVxCJ3Vr9PUto56Yr
 - **Rodar no computador:** `npm install` e depois `npm run dev`, em http://localhost:5173
-- **Repositório (privado):** https://github.com/Moreirapontocom-br/projeto-imovel
+- **Repositório (público):** https://github.com/Moreirapontocom-br/projeto-imovel
 
 > Tudo é fictício: imóveis, fotos (geradas por IA), valores, pessoas, reservas e contratos. Não há cobrança real, e os contratos não têm validade jurídica.
 
@@ -122,4 +123,5 @@ src/
 | 20/10/2026 | Passe de polish do impeccable sem mudar a estrutura |
 | 20/10/2026 | Publicação como página privada do Claude e documentação |
 | 20/10/2026 | Refresh visual "mais marca" sem mudar a estrutura |
-| 20/10/2026 | Repositório privado criado no GitHub |
+| 20/10/2026 | Repositório criado no GitHub |
+| 20/10/2026 | Repositório público + site no GitHub Pages com deploy automático |
