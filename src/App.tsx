@@ -1,8 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { HashRouter, Route, Routes, useLocation } from 'react-router-dom';
-import Home from '@/pages/Home';
+import Search from '@/pages/Search';
 
-const Search = lazy(() => import('@/pages/Search'));
 const PropertyPage = lazy(() => import('@/pages/PropertyPage'));
 const Cart = lazy(() => import('@/pages/Cart'));
 const Checkout = lazy(() => import('@/pages/Checkout'));
@@ -34,7 +33,8 @@ export default function App() {
       <ScrollTop />
       <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* A página inicial é a própria busca: lista de imóveis + mapa, como nas plataformas de hospedagem */}
+          <Route path="/" element={<Search />} />
           <Route path="/buscar" element={<Search />} />
           <Route path="/imovel/:id" element={<PropertyPage />} />
           <Route path="/carrinho" element={<Cart />} />
@@ -55,7 +55,7 @@ export default function App() {
             <Route path="contratos" element={<AdminContracts />} />
             <Route path="configuracoes" element={<AdminSettings />} />
           </Route>
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<Search />} />
         </Routes>
       </Suspense>
     </HashRouter>

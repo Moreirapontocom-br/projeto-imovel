@@ -23,6 +23,7 @@ export default function Search() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [view, setView] = useState<'list' | 'map'>('list');
   const [more, setMore] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -77,10 +78,10 @@ export default function Search() {
         <SearchBar initial={{ bairros: f.bairros, range: f.range, guests: f.guests }} onSubmit={(v) => update({ bairros: v.bairros, range: v.range, guests: v.guests })} />
       </Header>
 
-      <main className={`results view-${view}`}>
+      <main className={`results view-${view} ${expanded ? 'is-expanded' : ''}`}>
         <section className="results-list" aria-label="Lista de imóveis">
           <div className="results-head">
-            <h1 aria-live="polite">{list.length === 1 ? '1 imóvel' : `${list.length} imóveis`} para o Carnaval</h1>
+            <h1 aria-live="polite">{list.length === 1 ? '1 imóvel' : `${list.length} imóveis`} para o Carnaval em Salvador</h1>
             <DemoTag>Demonstração · dados ilustrativos</DemoTag>
           </div>
           {list.length === 0 ? (
@@ -95,7 +96,7 @@ export default function Search() {
           <p className="fineprint">* Distâncias estimadas em linha reta até o traçado ilustrativo mais próximo. Imóveis, fotos e valores são demonstrativos. Parcelamento conforme condições cadastradas.</p>
         </section>
         <aside className="results-map">
-          <PropertyMap items={list} hoverId={hoverId} selectedId={selectedId} onSelect={setSelectedId} />
+          <PropertyMap items={list} hoverId={hoverId} selectedId={selectedId} onSelect={setSelectedId} expanded={expanded} onToggleExpand={() => setExpanded(!expanded)} />
         </aside>
       </main>
 
