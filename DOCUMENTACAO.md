@@ -54,6 +54,7 @@ Hoje a separação é feita no navegador. Em produção, as permissões precisam
 - **Base:** design system em `Real estate design system/` (azul-marinho `#061B37`, dourado `#BC8733`, branco; fonte Inter).
 - **Estrutura:** padrão Airbnb a pedido do cliente: busca em cápsula, filtros em chips, cards fotográficos à esquerda e mapa fixo à direita, pins de preço que viram ovais quando se sobrepõem, botão de ampliar e zoom.
 - **Polish (impeccable):** contorno do card ativo, calendário abrindo no mês do Carnaval no celular, barra fixa de reserva no celular, busca compacta no celular, esmaecimento na faixa de filtros, foco dos modais, arredondamento exato das parcelas e confirmações na própria tela.
+- **Refresh "mais marca" (impeccable):** cabeçalho azul-marinho com a busca branca em destaque e o botão de busca dourado, chips de filtro sobre o marinho (o selecionado fica dourado), títulos e preços em Bricolage Grotesque (texto continua em Inter), losango do logo nos selos dos cards, preço com sublinhado dourado, pin ativo com contorno dourado e botão **Reservar** dourado.
 - **Fotos:** 36 imagens geradas no Higgsfield (modelo Z Image), todas marcadas como "Imagem ilustrativa". Os prompts estão em `scripts/gen-images.mjs`.
 
 ## 5. Arquitetura
@@ -121,3 +122,4 @@ src/
 | 20/10/2026 | Página inicial vira lista + mapa estilo Airbnb |
 | 20/10/2026 | Passe de polish do impeccable sem mudar a estrutura |
 | 20/10/2026 | Publicação como página privada do Claude e documentação |
+| 20/10/2026 | Refresh visual "mais marca" sem mudar a estrutura |
