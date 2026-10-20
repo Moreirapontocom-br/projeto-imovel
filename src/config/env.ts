@@ -16,3 +16,8 @@ export const mapTiles = isArtifact
       maxZoom: 19,
       bounds: undefined,
     };
+
+// Com VITE_API_URL definido (ex.: "/api"), os dados vêm do servidor (server/) em vez do navegador.
+// Sem ele, o site funciona sozinho em modo demonstração, como no GitHub Pages.
+export const apiUrl = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+export const apiMode = Boolean(apiUrl) && !isArtifact;

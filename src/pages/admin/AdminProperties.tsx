@@ -65,7 +65,7 @@ function PropertyEditor({ property: p, onClose }: { property: Property; onClose(
       <>
         {saved && <span className="saved" role="status">Alterações salvas</span>}
         <Button variant="secondary" onClick={onClose}>Fechar</Button>
-        <Button onClick={() => { update(p.id, { ...form, title: form.title.trim() || p.title }); setSaved(true); }}>Salvar dados</Button>
+        <Button onClick={async () => { if ((await update(p.id, { ...form, title: form.title.trim() || p.title })).ok) setSaved(true); }}>Salvar dados</Button>
       </>
     }>
       <div className="editor-grid">
@@ -98,9 +98,9 @@ function PropertyEditor({ property: p, onClose }: { property: Property; onClose(
           <DateRangeCalendar value={range} onChange={(r) => { setRange(r); setErr(''); }} busy={busy} months={1} />
           <Field label="Motivo" value={note} onChange={(e) => setNote(e.target.value)} />
           {err && <p className="form-error"><AlertCircle size={15} />{err}</p>}
-          <Button variant="secondary" block disabled={!range} onClick={() => {
+          <Button variant="secondary" block disabled={!range} onClick={async () => {
             if (!range) return;
-            const r = addBlock(p.id, range, note);
+            const r = await addBlock(p.id, range, note);
             if (!r.ok) setErr(r.error ?? ''); else setRange(null);
           }}><Lock size={15} />Bloquear período</Button>
         </section>

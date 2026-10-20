@@ -6,10 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "vite --mode api",
+    "server": "tsx --tsconfig server/tsconfig.json server/index.ts",
     "build": "tsc -b && vite build",
+    "build:api": "tsc -b && vite build --mode api",
     "preview": "vite preview",
     "build:artifact": "tsc -b && vite build --mode artifact && node scripts/artifact-html.mjs && node scripts/fetch-tiles.mjs dist-artifact/tiles",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b && tsc -p server --noEmit"
   },
   "dependencies": {
     "jspdf": "^2.5.2",
@@ -23,9 +26,11 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.14",
+    "@types/node": "^22.10.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vite-plugin-singlefile": "^2.0.3"

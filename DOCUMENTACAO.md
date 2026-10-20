@@ -74,17 +74,38 @@ src/
   lib/contract.ts        preenchimento dos modelos
   lib/pdf.ts             PDF demonstrativo
   services/index.ts      pontos de integração (pagamento, assinatura, autenticação)
-  store/index.ts         "banco de dados" da demo (Zustand + localStorage)
+  services/api.ts        cliente HTTP da API
+  store/index.ts         estado das telas: demo (localStorage) ou cópia do servidor (modo API)
   pages/                 telas públicas, cliente e admin
+server/
+  db.ts                  esquema SQLite, dados iniciais, leitura e gravação
+  index.ts               API REST: regras, permissões por perfil, checkout transacional
 ```
 
-**Tecnologias:** React 18, Vite, TypeScript, React Router, Zustand, Leaflet, jsPDF, lucide-react.
+**Dois modos de dados:**
+
+| Modo | Como ativar | Onde ficam os dados |
+|---|---|---|
+| Demonstração | padrão (GitHub Pages, página do Claude) | no navegador de cada pessoa |
+| API | `VITE_API_URL` definido (`npm run dev:api` usa `/api`) | no banco do servidor, compartilhado por todos |
+
+**Disponibilidade sem reserva dupla:** o checkout revalida todos os itens dentro de uma transação `BEGIN IMMEDIATE`, e o banco tem um trigger (`blocks_no_overlap`) que recusa qualquer período sobreposto. Em teste com 6 reservas simultâneas para o mesmo imóvel e datas, só 1 foi aceita. As outras receberam o erro 409 e o calendário foi atualizado.
+
+**O servidor não confia no navegador:** total e parcelas são recalculados a partir do imóvel e das condições salvas. Hóspedes e mínimo de noites são validados. Visitantes não veem reservas, clientes nem motivos de bloqueio. Clientes só veem e pagam as próprias reservas.
+
+**Variáveis do servidor:** `PORT` (8787), `DB_PATH` (`server/data/app.db`), `CORS_ORIGIN` (quando o site está em outro domínio), `ALLOW_RESET=0` (desliga "Restaurar dados" em produção).
+
+**Tecnologias:** React 18, Vite, TypeScript, React Router, Zustand, Leaflet, jsPDF, lucide-react. Servidor: Node 22.5+ (`node:http` e `node:sqlite`), executado com `tsx`.
 
 **Comandos:**
 
 | Comando | O que faz |
 |---|---|
-| `npm run dev` | ambiente local |
+| `npm run dev` | ambiente local, modo demonstração |
+| `npm run server` | API + banco SQLite em http://localhost:8787 |
+| `npm run dev:api` | ambiente local usando a API (rode `npm run server` junto) |
+| `npm run build:api` | site estático que usa a API (`VITE_API_URL` em `.env.api`) |
+| `npm run typecheck` | checa os tipos do site e do servidor |
 | `npm run build` | site estático em `dist/` (GitHub Pages, Vercel, Netlify) |
 | `npm run build:artifact` | versão para página do Claude em `dist-artifact/` (HTML único + fotos + blocos do mapa) |
 
@@ -103,7 +124,7 @@ src/
 1. Trocar os traçados dos circuitos pela geometria oficial.
 2. Contratar um provedor de mapas (Google Maps, Mapbox ou MapTiler).
 3. Implementar autenticação real e validar permissões no servidor.
-4. Trocar o store local por API + banco de dados, com verificação transacional de disponibilidade.
+4. ~~Trocar o store local por API + banco de dados, com verificação transacional de disponibilidade.~~ Feito em `server/`. Falta hospedar o servidor (ex.: Render, Railway, Fly.io ou uma VPS com disco persistente) e publicar o site com `VITE_API_URL` apontando para ele. Para rodar mais de uma instância, trocar o SQLite por Postgres com restrição de exclusão (`EXCLUDE USING gist`) nos períodos.
 5. Integrar um provedor de pagamento (Pix/cartão) sem coletar cartão no front-end.
 6. Integrar assinatura eletrônica e submeter os modelos de contrato a revisão jurídica.
 7. Substituir fotos, imóveis e valores pelos reais.
@@ -111,7 +132,8 @@ src/
 
 ## 8. Limitações conhecidas
 
-- Os dados ficam no navegador de quem usa. Cada pessoa vê sua própria cópia da demo.
+- No modo demonstração, os dados ficam no navegador de quem usa e cada pessoa vê sua própria cópia. No modo API, todos compartilham o mesmo banco.
+- No modo API, o perfil ainda é escolhido sem senha (cabeçalhos `X-Demo-Role`/`X-Demo-User`). As permissões já são checadas no servidor, e o item 3 só troca a forma de identificar o usuário (`session()` em `server/index.ts`).
 - Na página do Claude, o mapa só cobre a área da demo (zoom 12 a 16), e o PDF pede confirmação antes de baixar.
 
 ## 9. Histórico
@@ -125,3 +147,4 @@ src/
 | 20/10/2026 | Refresh visual "mais marca" sem mudar a estrutura |
 | 20/10/2026 | Repositório criado no GitHub |
 | 20/10/2026 | Repositório público + site no GitHub Pages com deploy automático |
+| 20/10/2026 | API + banco SQLite com reservas transacionais (modo API opcional) |

@@ -190,3 +190,5 @@ input, textarea { caret-color: var(--gold); }
 .avatar.sm { width: 30px; height: 30px; }
 
 .page-loading { min-height: 100vh; }
+.sync-error { position: fixed; z-index: 1000; left: 50%; bottom: 24px; transform: translateX(-50%); width: min(480px, calc(100vw - 32px)); align-items: center; box-shadow: 0 8px 24px rgba(6, 27, 55, 0.18); }
+.sync-error span { flex: 1; }

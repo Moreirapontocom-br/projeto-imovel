@@ -15,6 +15,15 @@ npm run dev      # http://localhost:5173
 npm run build    # gera /dist (site estático, funciona em GitHub Pages)
 ```
 
+### Com servidor e banco de dados
+
+```bash
+npm run server   # API + SQLite em http://localhost:8787/api (cria server/data/app.db com os dados fictícios)
+npm run dev:api  # site usando a API (em outro terminal)
+```
+
+Sem `VITE_API_URL`, o site continua no modo demonstração, com os dados no navegador (é assim no GitHub Pages).
+
 ## Jornadas
 
 | Perfil | Onde | O que faz |
@@ -40,7 +49,8 @@ public/images/properties fotos (geradas por IA, marcadas como ilustrativas)
 ## Arquitetura
 
 - **React 18 + Vite + TypeScript**, React Router (HashRouter, para hospedagem estática)
-- **Zustand** (`src/store`) como “banco de dados” da demo, persistido no `localStorage`. É a fonte única de verdade para mapa, catálogo, checkout, área do cliente e admin.
+- **Zustand** (`src/store`) é a fonte única de verdade das telas. No modo demonstração, guarda os dados no `localStorage`. No modo API, guarda a última visão recebida do servidor.
+- **Servidor** (`server/`): Node 22.5+ com `node:sqlite`, sem dependências de produção. Recalcula total e parcelas no servidor, filtra os dados por perfil e grava reservas em transação. Um trigger no banco recusa períodos sobrepostos.
 - **Leaflet / react-leaflet** com tiles do OpenStreetMap
 - **jsPDF** para PDFs demonstrativos com marca d'água
 - `src/lib`: regras puras: disponibilidade e conflitos (`availability.ts`), orçamento e parcelas (`payment.ts`), distâncias em linha reta (`geo.ts`), preenchimento de contratos (`contract.ts`)
@@ -51,7 +61,7 @@ public/images/properties fotos (geradas por IA, marcadas como ilustrativas)
 - Substituir os traçados dos circuitos pela geometria oficial; hoje são aproximações ilustrativas.
 - Usar um provedor de mapas com contrato/chave (o tile público do OSM não é para tráfego de produção).
 - Implementar autenticação real e **validar permissões no backend**. Hoje a separação visitante/cliente/admin existe só no front-end.
-- Trocar o store local por API + banco de dados, com verificação transacional de disponibilidade.
+- Hospedar o servidor (`server/`) e apontar `VITE_API_URL` para ele. Para vários servidores, trocar o SQLite por Postgres com restrição de exclusão de períodos.
 - Integrar PSP (Pix/cartão) sem coletar dados de cartão no front-end, além de um provedor de assinatura eletrônica.
 - Submeter os modelos de contrato a revisão jurídica.
 

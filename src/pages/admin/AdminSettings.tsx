@@ -40,7 +40,7 @@ export default function AdminSettings() {
             ))}
           </div>
           <div className="res-actions">
-            <Button onClick={() => { setTerms(form); setSaved(true); }}>Salvar condições</Button>
+            <Button onClick={async () => { if ((await setTerms(form)).ok) setSaved(true); }}>Salvar condições</Button>
             <Button variant="ghost" onClick={() => { setForm(defaultPaymentTerms); setSaved(false); }}>Restaurar padrão</Button>
             {saved && <span className="saved" role="status">Condições salvas e aplicadas</span>}
           </div>
@@ -59,7 +59,7 @@ export default function AdminSettings() {
           <h2>Restaurar demonstração</h2>
           <p className="muted small">Apaga reservas, bloqueios e edições feitas nesta sessão e volta aos dados originais.</p>
         </div>
-        <ConfirmButton variant="danger" size="md" confirmLabel="Apagar alterações e restaurar?" onConfirm={() => { resetDemo(); setForm(defaultPaymentTerms); }}><RotateCcw size={15} />Restaurar dados</ConfirmButton>
+        <ConfirmButton variant="danger" size="md" confirmLabel="Apagar alterações e restaurar?" onConfirm={async () => { if ((await resetDemo()).ok) setForm(defaultPaymentTerms); }}><RotateCcw size={15} />Restaurar dados</ConfirmButton>
       </section>
     </div>
   );

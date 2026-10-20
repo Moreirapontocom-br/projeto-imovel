@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Info } from 'lucide-react';
 import { brand } from '@/config/brand';
+import { apiMode } from '@/config/env';
 import { useStore } from '@/store';
 import { BrandMark } from './Brand';
 
@@ -28,10 +29,13 @@ export function Footer() {
           <Link to="/cliente">Área do cliente</Link>
           <Link to="/admin">Painel administrativo</Link>
         </nav>
-        <div>
-          <h4>Protótipo</h4>
-          <button className="link-btn link-btn-inverse" onClick={() => resetDemo()}>Restaurar dados de demonstração</button>
-        </div>
+        {/* com servidor, os dados são compartilhados: restaurar fica só no painel do administrador */}
+        {!apiMode && (
+          <div>
+            <h4>Protótipo</h4>
+            <button className="link-btn link-btn-inverse" onClick={() => resetDemo()}>Restaurar dados de demonstração</button>
+          </div>
+        )}
       </div>
       <p className="sf-legal">© 2026 {brand.name} · Ambiente demonstrativo, sem transações reais.</p>
     </footer>

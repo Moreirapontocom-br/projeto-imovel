@@ -59,7 +59,7 @@ export default function Checkout() {
     setBusy(true);
     await paymentGateway.createCharge({ reservationCode: 'NOVA', method, installment: plan[0] });
     done.current = true;
-    const r = checkout({ items: cart, method, installments: count, client: { ...form, document: form.document || 'não informado' } });
+    const r = await checkout({ items: cart, method, installments: count, client: { ...form, document: form.document || 'não informado' } });
     setBusy(false);
     if (!r.ok) { done.current = false; return setFail(r.error); }
     nav(`/confirmacao?r=${r.reservations.map((x) => x.id).join(',')}`);

@@ -83,7 +83,7 @@ export function ClientPayments() {
                     <td>{i.status === 'pago' ? <span className="pill is-ok"><CheckCircle2 size={13} />Pago</span> : <span className="pill is-pending"><Clock size={13} />Em aberto</span>}</td>
                     <td className="right">
                       {i.status !== 'pago' && i.n === r.installments.find((x) => x.status !== 'pago')?.n && (
-                        <Button size="sm" variant="secondary" loading={busy === `${r.id}-${i.n}`} onClick={async () => { setBusy(`${r.id}-${i.n}`); await new Promise((x) => setTimeout(x, 700)); pay(r.id, i.n); setBusy(''); }}>
+                        <Button size="sm" variant="secondary" loading={busy === `${r.id}-${i.n}`} onClick={async () => { setBusy(`${r.id}-${i.n}`); await new Promise((x) => setTimeout(x, 700)); await pay(r.id, i.n); setBusy(''); }}>
                           Simular pagamento
                         </Button>
                       )}
@@ -147,7 +147,7 @@ function ContractRow({ r, onView }: { r: Reservation; onView(): void }) {
         <Button size="sm" variant="secondary" onClick={onView}><Eye size={15} />Visualizar</Button>
         <Button size="sm" variant="secondary" onClick={() => downloadContractPdf(data.template.name, data.text, `contrato-${r.code}-DEMO.pdf`)}><Download size={15} />PDF</Button>
         {data.contract.status !== 'assinado-demo' && (
-          <Button size="sm" loading={signing} onClick={async () => { setSigning(true); await signatureProvider.requestSignature({ contractId: data.contract.id, signerEmail: '' }); setStatus(data.contract.id, 'assinado-demo'); setSigning(false); }}>
+          <Button size="sm" loading={signing} onClick={async () => { setSigning(true); await signatureProvider.requestSignature({ contractId: data.contract.id, signerEmail: '' }); await setStatus(data.contract.id, 'assinado-demo'); setSigning(false); }}>
             <PenLine size={15} />Simular assinatura
           </Button>
         )}
