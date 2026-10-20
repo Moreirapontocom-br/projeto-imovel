@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { HashRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { isArtifact } from '@/config/env';
 import Search from '@/pages/Search';
 
 const PropertyPage = lazy(() => import('@/pages/PropertyPage'));
@@ -27,9 +28,12 @@ function ScrollTop() {
 }
 
 // HashRouter: funciona em hospedagem estática (GitHub Pages) sem configuração de servidor.
+// MemoryRouter na versão para páginas do Claude, que não repassam rotas no hash da URL.
+const Router = isArtifact ? MemoryRouter : HashRouter;
+
 export default function App() {
   return (
-    <HashRouter>
+    <Router>
       <ScrollTop />
       <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
         <Routes>
@@ -58,6 +62,6 @@ export default function App() {
           <Route path="*" element={<Search />} />
         </Routes>
       </Suspense>
-    </HashRouter>
+    </Router>
   );
 }

@@ -4,6 +4,9 @@ Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para
 
 > Todos os imóveis, fotos, valores, pessoas, reservas e contratos são **fictícios**. Não há cobranças reais, e os contratos gerados **não têm validade jurídica**.
 
+- **Demonstração online (página privada do Claude):** https://claude.ai/artifact/QLnmYYVxCJ3Vr9PUto56Yr
+- **Documentação completa:** [DOCUMENTACAO.md](DOCUMENTACAO.md)
+
 ## Rodar localmente
 
 ```bash

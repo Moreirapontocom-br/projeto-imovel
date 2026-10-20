@@ -30,7 +30,7 @@ export function Footer() {
         </nav>
         <div>
           <h4>Protótipo</h4>
-          <button className="link-btn link-btn-inverse" onClick={() => { resetDemo(); location.reload(); }}>Restaurar dados de demonstração</button>
+          <button className="link-btn link-btn-inverse" onClick={() => resetDemo()}>Restaurar dados de demonstração</button>
         </div>
       </div>
       <p className="sf-legal">© 2026 {brand.name} · Ambiente demonstrativo, sem transações reais.</p>

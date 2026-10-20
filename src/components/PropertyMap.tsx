@@ -7,6 +7,7 @@ import type { Property, PropertyStatus } from '@/types';
 import { circuits, pois } from '@/data/geo';
 import { brlShort, brl } from '@/lib/format';
 import { statusInfo } from '@/lib/availability';
+import { mapTiles } from '@/config/env';
 
 export interface MapItem { property: Property; total: number; status: PropertyStatus }
 
@@ -44,9 +45,19 @@ function Fit({ items }: { items: MapItem[] }) {
   useEffect(() => {
     if (!items.length) return;
     const b = L.latLngBounds(items.map((i) => [i.property.location.lat, i.property.location.lng] as [number, number]));
-    // aguarda o container ter tamanho real (layouts sticky/ocultos) antes de enquadrar
-    const t = setTimeout(() => { map.invalidateSize(); map.fitBounds(b, { padding: [56, 56], maxZoom: 15, animate: false }); }, 60);
-    return () => clearTimeout(t);
+    const el = map.getContainer();
+    let fitted = false;
+    const fit = () => {
+      // mapa oculto (lista no celular, layout ainda montando) tem tamanho 0: espera aparecer
+      if (!el.clientWidth || !el.clientHeight) return;
+      map.invalidateSize();
+      map.fitBounds(b, { padding: [56, 56], maxZoom: 15, animate: false });
+      fitted = true;
+    };
+    const t = setTimeout(fit, 60);
+    const ro = new ResizeObserver(() => { if (!fitted) fit(); });
+    ro.observe(el);
+    return () => { clearTimeout(t); ro.disconnect(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   return null;
@@ -166,12 +177,15 @@ export function PropertyMap({ items, mode = 'public', selectedId, hoverId, onSel
 
   return (
     <div className={`map ${className}`} role="region" aria-label={label}>
-      <MapContainer center={[-13.0, -38.51]} zoom={13} zoomSnap={0.25} zoomDelta={1} zoomControl={false} scrollWheelZoom className="map-canvas">
+      <MapContainer center={[-13.0, -38.51]} zoom={13} zoomSnap={0.25} zoomDelta={1} zoomControl={false} scrollWheelZoom className="map-canvas"
+        minZoom={mapTiles.minZoom} maxZoom={mapTiles.maxZoom} maxBounds={mapTiles.bounds} maxBoundsViscosity={0.8}>
         {/* Base Esri World Street Map (sem chave) para o protótipo; em produção, usar provedor com contrato (Google, Mapbox, MapTiler…). */}
         <TileLayer
           attribution='Tiles &copy; Esri — Esri, HERE, Garmin, &copy; OpenStreetMap'
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
-          maxZoom={19}
+          url={mapTiles.url}
+          minZoom={mapTiles.minZoom}
+          maxZoom={mapTiles.maxZoom}
+          maxNativeZoom={mapTiles.maxZoom}
           className="tiles"
         />
         <Fit items={items} />

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Plus, Copy, Trash2, Download, Eye } from 'lucide-react';
-import { Button, Segmented } from '@/components/ui';
+import { Button, ConfirmButton, Segmented } from '@/components/ui';
 import { useStore } from '@/store';
 import { contractContext, fillTemplate, placeholders } from '@/lib/contract';
 import { downloadContractPdf } from '@/lib/pdf';
@@ -73,7 +73,7 @@ function Templates() {
             <input className="tpl-name" value={draft.name} aria-label="Nome do modelo" onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
             <div className="res-actions">
               <Button size="sm" variant="ghost" onClick={() => { const t = { ...draft, id: `tpl-${Date.now().toString(36)}`, name: `${draft.name} (cópia)` }; save(t); pick(t); }}><Copy size={14} />Duplicar</Button>
-              {templates.length > 1 && <Button size="sm" variant="ghost" className="danger" onClick={() => { if (confirm('Excluir este modelo?')) { del(draft.id); const n = templates.find((t) => t.id !== draft.id); if (n) pick(n); } }}><Trash2 size={14} />Excluir</Button>}
+              {templates.length > 1 && <ConfirmButton className="danger" confirmLabel="Excluir modelo?" onConfirm={() => { del(draft.id); const n = templates.find((t) => t.id !== draft.id); if (n) pick(n); }}><Trash2 size={14} />Excluir</ConfirmButton>}
               <Button size="sm" disabled={!dirty} onClick={() => save(draft)}>{dirty ? 'Salvar modelo' : 'Salvo'}</Button>
             </div>
           </div>

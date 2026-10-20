@@ -1,4 +1,5 @@
 import { brand } from '@/config/brand';
+import { isArtifact } from '@/config/env';
 
 /** Gera um PDF DEMONSTRATIVO, sem validade jurídica, com marca d'água em todas as páginas. */
 export async function downloadContractPdf(title: string, text: string, filename: string) {
@@ -34,5 +35,11 @@ export async function downloadContractPdf(title: string, text: string, filename:
     doc.text(line, M, y);
     y += 15;
   }
-  doc.save(filename);
+  if (!isArtifact) return doc.save(filename);
+  // Páginas do Claude não permitem download direto: o arquivo passa pela confirmação do visualizador.
+  const claude = (window as unknown as { claude?: { use(name: string): Promise<{ save(r: { filename: string; data: Blob }): Promise<unknown> } | null> } }).claude;
+  const downloads = await claude?.use('downloads');
+  if (!downloads) return console.warn('Download indisponível nesta visualização.');
+  // "declined" = o visualizador recusou; não é erro
+  await downloads.save({ filename, data: doc.output('blob') }).catch((e: { code?: string }) => e?.code !== 'declined' && console.warn(e));
 }

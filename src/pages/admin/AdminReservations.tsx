@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
-import { Button, Segmented } from '@/components/ui';
+import { Button, ConfirmButton, Segmented } from '@/components/ui';
 import { useStore } from '@/store';
 import { brl } from '@/lib/format';
 import { fmtRange } from '@/lib/dates';
@@ -42,7 +42,7 @@ export default function AdminReservations() {
                   <td><span className={`pill ${cls[r.status]}`}>{label[r.status]}</span></td>
                   <td className="right nowrap">
                     {r.status === 'pendente' && <Button size="sm" onClick={() => setStatus(r.id, 'confirmada')}><Check size={14} />Confirmar</Button>}
-                    {r.status !== 'cancelada' && <Button size="sm" variant="ghost" onClick={() => confirm(`Cancelar a reserva ${r.code}? As datas serão liberadas.`) && setStatus(r.id, 'cancelada')}><X size={14} />Cancelar</Button>}
+                    {r.status !== 'cancelada' && <ConfirmButton confirmLabel="Cancelar e liberar datas?" onConfirm={() => setStatus(r.id, 'cancelada')}><X size={14} />Cancelar</ConfirmButton>}
                   </td>
                 </tr>
               );

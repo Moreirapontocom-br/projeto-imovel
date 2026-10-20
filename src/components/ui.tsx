@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useId, useRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
 import { CheckCircle2, Clock, Lock, Minus, Plus, X, CalendarCheck } from 'lucide-react';
 import type { PropertyStatus } from '@/types';
 import { statusInfo } from '@/lib/availability';
@@ -99,6 +99,19 @@ export function Segmented<T extends string>({ value, options, onChange, label }:
         <button key={o.value} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(o.value)}>{o.label}</button>
       ))}
     </div>
+  );
+}
+
+/** Ação destrutiva com confirmação na própria tela (sem window.confirm, que alguns ambientes bloqueiam). */
+export function ConfirmButton({ children, confirmLabel, onConfirm, variant = 'ghost', size = 'sm', className = '' }: { children: ReactNode; confirmLabel: string; onConfirm(): void; variant?: Variant; size?: 'sm' | 'md' | 'lg'; className?: string }) {
+  const [asking, setAsking] = useState(false);
+  if (!asking) return <Button variant={variant} size={size} className={className} onClick={() => setAsking(true)}>{children}</Button>;
+  return (
+    <span className="confirm-inline" role="group" aria-label={confirmLabel}>
+      <span className="confirm-q">{confirmLabel}</span>
+      <Button variant="danger" size="sm" onClick={() => { setAsking(false); onConfirm(); }} autoFocus>Sim</Button>
+      <Button variant="ghost" size="sm" onClick={() => setAsking(false)}>Não</Button>
+    </span>
   );
 }
 

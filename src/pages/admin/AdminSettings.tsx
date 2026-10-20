@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { RotateCcw } from 'lucide-react';
-import { Button, Field } from '@/components/ui';
+import { Button, ConfirmButton, Field } from '@/components/ui';
 import { useStore } from '@/store';
 import { defaultPaymentTerms } from '@/config/payment';
 import { buildInstallments } from '@/lib/payment';
@@ -59,7 +59,7 @@ export default function AdminSettings() {
           <h2>Restaurar demonstração</h2>
           <p className="muted small">Apaga reservas, bloqueios e edições feitas nesta sessão e volta aos dados originais.</p>
         </div>
-        <Button variant="danger" onClick={() => { if (confirm('Restaurar todos os dados de demonstração?')) { resetDemo(); setForm(defaultPaymentTerms); } }}><RotateCcw size={15} />Restaurar dados</Button>
+        <ConfirmButton variant="danger" size="md" confirmLabel="Apagar alterações e restaurar?" onConfirm={() => { resetDemo(); setForm(defaultPaymentTerms); }}><RotateCcw size={15} />Restaurar dados</ConfirmButton>
       </section>
     </div>
   );

@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "build:artifact": "tsc -b && vite build --mode artifact && node scripts/artifact-html.mjs && node scripts/fetch-tiles.mjs dist-artifact/tiles",
     "typecheck": "tsc -b"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "vite-plugin-singlefile": "^2.0.3"
   }
 }

@@ -134,7 +134,7 @@
 
 /* ---------- Mapa ---------- */
 .map { position: relative; border-radius: var(--r-card); overflow: hidden; background: var(--surface-sunk); isolation: isolate; }
-.map-canvas { position: absolute; inset: 0; font-family: var(--font); background: var(--surface-sunk); }
+.map-canvas { position: absolute; inset: 0; font-family: var(--font); background: #D3DEE3; /* tom do mar da base, visível fora dos blocos */ }
 .leaflet-container { font-family: var(--font); }
 .tiles { filter: saturate(0.55) brightness(1.05) contrast(0.97); }
 .leaflet-container a.leaflet-popup-close-button { display: none; }

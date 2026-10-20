@@ -120,6 +120,8 @@ input, textarea { caret-color: var(--gold); }
 .form-error svg { flex: none; margin-top: 2px; }
 .check { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; }
 .check input { width: 20px; height: 20px; accent-color: var(--navy); flex: none; }
+.confirm-inline { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; animation: fade 160ms ease; }
+.confirm-q { font-size: 13px; font-weight: 600; color: var(--error); }
 .saved { font-size: 14px; font-weight: 600; color: var(--success); margin-right: auto; }
 
 .stepper { display: inline-flex; align-items: center; gap: 12px; }

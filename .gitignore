@@ -6,3 +6,4 @@ dist
 .impeccable/review
 .impeccable/config.local.json
 public/images/properties/provenance.json
+dist-artifact
