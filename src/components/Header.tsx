@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Menu, ShoppingBag, UserRound, LayoutDashboard, LogOut, LogIn, Heart, KeyRound } from 'lucide-react';
+import { Menu, ShoppingBag, UserRound, LayoutDashboard, LogOut, LogIn, Search, KeyRound } from 'lucide-react';
 import { useStore } from '@/store';
 import { BrandMark } from './Brand';
 
@@ -46,7 +46,7 @@ export function Header({ children, below, wide }: { children?: ReactNode; below?
                 {role === 'visitante' ? (
                   <>
                     <Link role="menuitem" to="/entrar"><LogIn size={17} />Entrar</Link>
-                    <Link role="menuitem" to="/buscar"><Heart size={17} />Explorar imóveis</Link>
+                    <Link role="menuitem" to="/buscar"><Search size={17} />Explorar imóveis</Link>
                   </>
                 ) : (
                   <>

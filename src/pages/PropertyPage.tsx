@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Heart, MapPin, Users, BedDouble, Bath, Ruler, AlertCircle, Images } from 'lucide-react';
+import { ArrowLeft, Bookmark, MapPin, Users, BedDouble, Bath, Ruler, AlertCircle, Images } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SearchBar } from '@/components/SearchBar';
@@ -76,7 +76,7 @@ export default function PropertyPage() {
           <div className="pdp-actions">
             <DemoTag>Imóvel demonstrativo</DemoTag>
             <button className="link-btn with-icon" onClick={() => toggleFavorite(p.id)} aria-pressed={fav}>
-              <Heart size={16} fill={fav ? 'currentColor' : 'none'} /> {fav ? 'Salvo' : 'Salvar'}
+              <Bookmark size={16} fill={fav ? 'currentColor' : 'none'} /> {fav ? 'Salvo' : 'Salvar'}
             </button>
           </div>
         </div>

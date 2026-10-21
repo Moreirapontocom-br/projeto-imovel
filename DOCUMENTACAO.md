@@ -160,11 +160,12 @@ Atualizado em 21/10/2026, na ordem recomendada.
 - [x] Pix por parcela com QR Code e copia e cola (fictícios), comprovante e aprovação pelo administrador
 - [x] Cabeçalho: Entrar, carrinho e conta distintos dos chips de filtro
 - [x] Repositório público no GitHub e site no GitHub Pages com deploy automático
+- [x] Novo visual (cantos retos, serifa Newsreader, fundo areia) e busca reestruturada: faixa de mapa fixa no topo, fichas largas e ordenação
 
 ## 8. Limitações conhecidas
 
 - No modo demonstração, os dados ficam no navegador de quem usa e cada pessoa vê sua própria cópia. Os comprovantes também ficam no navegador, que tem espaço limitado (cerca de 5 MB): para muitos envios, use o modo API. No modo API, todos compartilham o mesmo banco.
-- No modo API, o perfil ainda é escolhido sem senha (cabeçalhos `X-Demo-Role`/`X-Demo-User`). As permissões já são checadas no servidor, e o item 3 só troca a forma de identificar o usuário (`session()` em `server/index.ts`).
+- No modo API, o perfil ainda é escolhido sem senha (cabeçalhos `X-Demo-Role`/`X-Demo-User`). As permissões já são checadas no servidor, e o item 1 só troca a forma de identificar o usuário (`session()` em `server/index.ts`).
 - Na página do Claude, o mapa só cobre a área da demo (zoom 12 a 16), e o PDF pede confirmação antes de baixar.
 
 ## 9. Histórico

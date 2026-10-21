@@ -10,15 +10,31 @@ import { neighborhoods } from '@/data/geo';
 import { amenityInfo } from '@/data/amenities';
 import type { Amenity } from '@/types';
 import { brl } from '@/lib/format';
+import { fmtRange } from '@/lib/dates';
+import { nearestCircuit } from '@/lib/geo';
 
 const PRICE_STEPS = [10000, 15000, 20000, 30000];
 const NEAR_STEPS = [0.5, 1, 2];
 const QUICK_AMENITIES: Amenity[] = ['ar', 'vista-mar', 'piscina', 'garagem'];
 
+type Sort = 'perto' | 'total' | 'hospedes';
+const SORTS: { id: Sort; label: string }[] = [
+  { id: 'perto', label: 'Mais perto do circuito' },
+  { id: 'total', label: 'Menor total' },
+  { id: 'hospedes', label: 'Mais hóspedes' },
+];
+
 export default function Search() {
   const { filters: f, update, clear, activeCount } = useFilters();
   const all = useCatalog(f.range);
-  const list = applyFilters(all, f).sort((a, b) => Number(a.status !== 'disponivel') - Number(b.status !== 'disponivel'));
+  const [sort, setSort] = useState<Sort>('perto');
+  const by: Record<Sort, (i: (typeof all)[number]) => number> = {
+    perto: (i) => nearestCircuit(i.property.location).km,
+    total: (i) => i.total,
+    hospedes: (i) => -i.property.guests,
+  };
+  // indisponíveis sempre por último; dentro de cada grupo, a ordenação escolhida
+  const list = applyFilters(all, f).sort((a, b) => Number(a.status !== 'disponivel') - Number(b.status !== 'disponivel') || by[sort](a) - by[sort](b));
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [view, setView] = useState<'list' | 'map'>('list');
@@ -79,10 +95,22 @@ export default function Search() {
       </Header>
 
       <main className={`results view-${view} ${expanded ? 'is-expanded' : ''}`}>
+        <aside className="results-map">
+          <PropertyMap items={list} hoverId={hoverId} selectedId={selectedId} onSelect={setSelectedId} expanded={expanded} onToggleExpand={() => setExpanded(!expanded)} />
+        </aside>
         <section className="results-list" aria-label="Lista de imóveis">
           <div className="results-head">
-            <h1 aria-live="polite">{list.length === 1 ? '1 imóvel' : `${list.length} imóveis`} para o Carnaval em Salvador</h1>
-            <DemoTag>Demonstração · dados ilustrativos</DemoTag>
+            <div className="stack-sm">
+              <h1 aria-live="polite">{list.length === 1 ? '1 imóvel' : `${list.length} imóveis`} para o Carnaval em Salvador</h1>
+              <p className="results-sub">{fmtRange(f.range)} · valores totais do período <DemoTag>Demonstração · dados ilustrativos</DemoTag></p>
+            </div>
+            {list.length > 1 && (
+              <div className="segmented" role="radiogroup" aria-label="Ordenar imóveis">
+                {SORTS.map((s) => (
+                  <button key={s.id} type="button" role="radio" aria-checked={sort === s.id} onClick={() => setSort(s.id)}>{s.label}</button>
+                ))}
+              </div>
+            )}
           </div>
           {list.length === 0 ? (
             <EmptyState title="Nenhum imóvel com esses filtros" text="Tente outro bairro, aumente o número de hóspedes ou remova algum filtro." action={<Button variant="secondary" onClick={clear}>Limpar filtros</Button>} />
@@ -95,9 +123,6 @@ export default function Search() {
           )}
           <p className="fineprint">* Distâncias estimadas em linha reta até o traçado ilustrativo mais próximo. Imóveis, fotos e valores são demonstrativos. Parcelamento conforme condições cadastradas.</p>
         </section>
-        <aside className="results-map">
-          <PropertyMap items={list} hoverId={hoverId} selectedId={selectedId} onSelect={setSelectedId} expanded={expanded} onToggleExpand={() => setExpanded(!expanded)} />
-        </aside>
       </main>
 
       <button className="view-toggle" onClick={() => setView(view === 'map' ? 'list' : 'map')}>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
 import type { DateRange, Property, PropertyStatus } from '@/types';
 import { useStore } from '@/store';
 import { brl, km, plural } from '@/lib/format';
@@ -55,7 +55,7 @@ export function PropertyCard({ property: p, total, range, status, compact, activ
         </div>
         {p.highlight && <span className="pcard-badge">{p.highlight}</span>}
         <button className={`pcard-fav ${fav ? 'is-on' : ''}`} aria-pressed={fav} aria-label={fav ? `Remover ${p.title} dos favoritos` : `Favoritar ${p.title}`} onClick={() => toggleFavorite(p.id)}>
-          <Heart size={24} strokeWidth={2} />
+          <Bookmark size={18} strokeWidth={2} />
         </button>
         {idx > 0 && <button className="pcard-nav prev" aria-label="Foto anterior" onClick={() => go(-1)}><ChevronLeft size={16} /></button>}
         {idx < p.photos.length - 1 && <button className="pcard-nav next" aria-label="Próxima foto" onClick={() => go(1)}><ChevronRight size={16} /></button>}
@@ -65,15 +65,19 @@ export function PropertyCard({ property: p, total, range, status, compact, activ
 
       <Link to={to} className="pcard-body" tabIndex={-1}>
         <div className="pcard-row">
-          <h3>{p.type} · {p.neighborhood}</h3>
+          <p className="pcard-kind">{p.type} · {p.neighborhood}</p>
           {status !== 'disponivel' && <span className="pcard-status" style={{ color: statusInfo[status].color }}>{statusInfo[status].label}</span>}
         </div>
-        <p className="pcard-line clamp">{p.title}</p>
+        <h3 className="clamp">{p.title}</h3>
         {!compact && <p className="pcard-line">{plural(p.bedrooms, 'quarto', 'quartos')} · {plural(p.guests, 'hóspede', 'hóspedes')}</p>}
-        <p className="pcard-line">{fmtRange(range)} · {km(near.km)} do {near.circuit.name.replace('Circuito ', '')}*</p>
-        <p className="pcard-price"><strong>{brl(total)}</strong> <span>total</span></p>
-        {!compact && <p className="pcard-inst">ou entrada + {inst.n}x de {brl(inst.each)}</p>}
+        <p className="pcard-line">{km(near.km)} do {near.circuit.name.replace('Circuito ', '')}*</p>
       </Link>
+
+      <div className="pcard-side">
+        <p className="pcard-price"><strong>{brl(total)}</strong> <span>total de {fmtRange(range)}</span></p>
+        {!compact && <p className="pcard-inst">ou entrada + {inst.n}x de {brl(inst.each)}</p>}
+        <Link to={to} className="btn btn-primary btn-md pcard-go" tabIndex={-1} aria-hidden>Ver imóvel</Link>
+      </div>
     </article>
   );
 }

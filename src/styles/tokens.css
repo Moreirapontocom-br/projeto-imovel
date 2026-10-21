@@ -14,6 +14,7 @@
   --surface: #FFFFFF;
   --surface-soft: #F7F8FA;
   --surface-warm: #FBF8F1;
+  --page: #F4EEE3; /* fundo areia: a página não é branca, os cartões é que são */
   --surface-sunk: #EEF1F4;
   --border: #DCE0E4;
   --border-strong: #C4CAD1;
@@ -23,19 +24,23 @@
   --warning: #9B650B;
 
   --font: "Inter", Arial, sans-serif;
-  --font-display: "Bricolage Grotesque", "Inter", Arial, sans-serif; /* títulos, marca e preços em destaque */
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif; /* títulos, marca e preços em destaque */
   --on-navy: rgb(255 255 255 / 86%);
   --on-navy-line: rgb(255 255 255 / 20%);
 
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-card: 20px;
-  --r-pill: 999px;
+  /* geometria reta, de prancheta de arquiteto: cantos discretos em tudo */
+  --r-sm: 3px;
+  --r-md: 5px;
+  --r-lg: 6px;
+  --r-card: 8px;
+  --r-ctl: 4px; /* botões, chips, campos de controle */
+  --r-pill: 999px; /* só para contadores e pontos */
+  --rule: 1px solid var(--border);
+  --rule-gold: 1px solid rgb(188 135 51 / 55%);
 
   --sh-search: 0 2px 10px rgb(3 20 43 / 12%);
   --sh-pin: 0 2px 6px rgb(3 20 43 / 20%);
-  --sh-pop: 0 8px 28px rgb(3 20 43 / 16%);
+  --sh-pop: 0 10px 30px -6px rgb(3 20 43 / 22%);
   --sh-modal: 0 18px 48px rgb(3 20 43 / 20%);
 
   --gutter: clamp(16px, 3.6vw, 54px);

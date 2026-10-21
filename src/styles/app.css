@@ -7,13 +7,13 @@
 .admin-link:hover { background: rgb(255 255 255 / 7%); color: #fff; }
 .admin-link.active { background: rgb(255 255 255 / 11%); color: #fff; font-weight: 600; box-shadow: inset 2px 0 0 var(--gold-light); }
 .admin-link.active svg { color: var(--gold-light); }
-.admin-count { margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--gold); color: var(--navy-deep); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.admin-count { margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; border-radius: var(--r-sm); background: var(--gold); color: var(--navy-deep); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
 .admin-out { margin-top: auto; font-size: 13px; }
 .admin-main { min-width: 0; }
 .admin-top { position: sticky; top: 0; z-index: 900; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 32px; background: rgb(247 248 250 / 92%); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-2); }
 .admin-period b { color: var(--navy); }
 .admin-page { padding: 28px 32px 56px; display: grid; gap: 24px; max-width: 1480px; }
-.admin-head h1 { font-size: 26px; letter-spacing: -0.03em; }
+.admin-head h1 { font-size: 32px; }
 .admin-head .muted { margin-top: 4px; }
 .admin-head.row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .search-input { width: min(320px, 100%); min-height: 42px; padding: 10px 14px; }
@@ -70,7 +70,7 @@
 .tpl-name:hover { border-color: var(--border); }
 .tpl-name:focus { outline: none; border-color: var(--navy); }
 .tpl-fields { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.token { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: var(--r-pill); border: 1px dashed var(--gold); background: var(--surface-warm); color: var(--gold-ink); transition: background var(--fast); }
+.token { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: var(--r-sm); border: 1px dashed var(--gold); background: var(--surface-warm); color: var(--gold-ink); transition: background var(--fast); }
 .token:hover { background: #F5ECD9; }
 .tpl-panes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .tpl-pane { display: grid; gap: 8px; align-content: start; }
