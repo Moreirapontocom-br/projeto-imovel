@@ -13,13 +13,15 @@
 .site-header .icon-btn-outline { background: rgb(255 255 255 / 10%); border-color: transparent; color: #fff; }
 .site-header .icon-btn-outline:hover { background: rgb(255 255 255 / 18%); }
 .sh-cart .count { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: var(--r-sm); background: var(--gold); color: var(--navy-deep); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
-.sh-menu { position: relative; }
+.sh-menu { position: relative; z-index: 2; }
+.sh-top { position: relative; z-index: 2; }
+.menu-scrim { position: absolute; z-index: 1; top: 100%; left: 50%; width: 100vw; height: 100vh; translate: -50% 0; background: rgb(3 20 43 / 42%); animation: fade 160ms ease; }
 .account-btn { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 5px 0 14px; border-radius: var(--r-ctl); border: 1px solid transparent; background: rgb(255 255 255 / 10%); color: #fff; transition: background var(--fast); }
 .account-btn:hover { background: rgb(255 255 255 / 18%); }
 .site-header .avatar { background: var(--gold-light); color: var(--navy-deep); }
 .site-header .avatar.is-guest { background: rgb(255 255 255 / 16%); color: #fff; }
 .menu { color: var(--navy); }
-.menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 260px; background: #fff; border-radius: var(--r-lg); box-shadow: var(--sh-pop); padding: 8px 0; display: grid; animation: rise 200ms var(--ease); }
+.menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 260px; background: #fff; border-radius: var(--r-lg); border: 1px solid #E4DCCB; box-shadow: 0 18px 40px -12px rgb(3 20 43 / 45%); padding: 8px 0; display: grid; animation: rise 200ms var(--ease); }
 .menu a, .menu button { display: flex; align-items: center; gap: 12px; padding: 12px 18px; font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; text-align: left; }
 .menu a:hover, .menu button:hover { background: var(--surface-soft); }
 .menu-who { padding: 10px 18px 12px; font-size: 13px; font-weight: 700; border-bottom: 1px solid var(--border); margin-bottom: 6px; }

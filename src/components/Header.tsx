@@ -28,6 +28,8 @@ export function Header({ children, below, wide }: { children?: ReactNode; below?
       <div className="sh-top">
         <BrandMark inverse />
         <div className="sh-center">{children}</div>
+        {/* escurece filtros e página enquanto o menu da conta está aberto, para o menu não parecer parte das abas */}
+        {menu && <div className="menu-scrim" aria-hidden />}
         <nav className="sh-right" aria-label="Conta">
           {role === 'cliente' && <NavLink to="/cliente" className="sh-link">Minhas reservas</NavLink>}
           {role === 'admin' && <NavLink to="/admin" className="sh-link">Painel admin</NavLink>}
