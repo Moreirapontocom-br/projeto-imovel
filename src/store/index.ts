@@ -313,7 +313,19 @@ export const useStore = create<State>()(
     },
     apiMode
       ? { name: 'sua-marca-api-v1', storage: safeStorage, partialize: (s) => ({ role: s.role, userId: s.userId, cart: s.cart, favorites: s.favorites }) }
-      : { name: 'sua-marca-demo-v1', storage: safeStorage, partialize: ({ ready: _r, loadError: _l, syncError: _s, ...rest }) => rest },
+      : {
+          name: 'sua-marca-demo-v1', storage: safeStorage, partialize: ({ ready: _r, loadError: _l, syncError: _s, ...rest }) => rest,
+          // v1: novo modelo padrão de contrato; só substitui o antigo se ele nunca foi editado
+          version: 1,
+          migrate: (persisted, version) => {
+            const s = persisted as Partial<State>;
+            if (version < 1 && s.templates) {
+              const fresh = seedTemplates.find((t) => t.id === 'tpl-temporada')!;
+              s.templates = s.templates.map((t) => (t.id === fresh.id && t.updatedAt === '2026-10-01' ? fresh : t));
+            }
+            return s as State;
+          },
+        },
   ),
 );
 

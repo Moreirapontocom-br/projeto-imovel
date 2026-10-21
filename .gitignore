@@ -8,3 +8,6 @@ dist
 public/images/properties/provenance.json
 dist-artifact
 server/data
+
+# contratos reais de exemplo (dados pessoais): nunca versionar
+/CONTRATO*.docx

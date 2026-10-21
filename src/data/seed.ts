@@ -41,27 +41,92 @@ export const seedBlocks: AvailabilityBlock[] = [
 export const seedTemplates: ContractTemplate[] = [
   {
     id: 'tpl-temporada',
-    name: 'Locação por temporada — padrão',
-    updatedAt: '2026-10-01',
-    body: `CONTRATO DE LOCAÇÃO POR TEMPORADA (MODELO DEMONSTRATIVO)
+    name: 'Locação para fins de temporada — padrão',
+    updatedAt: '2026-10-21',
+    body: `CONTRATO DE LOCAÇÃO PARA FINS DE TEMPORADA
+(MODELO DEMONSTRATIVO — sujeito a revisão jurídica)
 
-LOCADOR: {{empresa.nome}}
-LOCATÁRIO: {{cliente.nome}}, documento {{cliente.documento}}, residente em {{cliente.cidade}}.
+Por este instrumento particular, as partes qualificadas na Cláusula 1ª têm entre si justa e acertada a presente relação contratual.
 
-1. OBJETO
-Locação do imóvel "{{imovel.titulo}}", localizado no bairro {{imovel.bairro}}, Salvador/BA, para uso residencial por temporada.
+CLÁUSULA 1ª — QUALIFICAÇÃO DAS PARTES
 
-2. PERÍODO
-Entrada em {{reserva.checkin}} e saída em {{reserva.checkout}}, totalizando {{reserva.noites}} noites, para até {{reserva.hospedes}} hóspedes.
+LOCADOR(A): {{locador.nome}}, documento {{locador.documento}}, com endereço em {{locador.endereco}}.
 
-3. VALOR E PAGAMENTO
-Valor total de {{valor.total}}, pago via {{pagamento.metodo}}, conforme o cronograma:
+LOCATÁRIO(A): {{cliente.nome}}, documento {{cliente.documento}}, residente em {{cliente.cidade}}.
+Nacionalidade: ____________________   Profissão: ____________________
+Estado civil: ____________________   RG: ____________________
+Endereço completo e CEP: ________________________________________
+
+CLÁUSULA 2ª — DO IMÓVEL
+O LOCADOR coloca à disposição do LOCATÁRIO o imóvel abaixo descrito, com móveis e utensílios básicos, conforme relação anexa e Termo de Vistoria:
+{{imovel.descricao}} — "{{imovel.titulo}}", bairro {{imovel.bairro}}, Salvador/BA.
+a) Durante a locação não serão fornecidos itens de higiene pessoal, roupa de banho nem roupa de cama. O LOCADOR não se responsabiliza por objetos esquecidos no imóvel após a devolução.
+
+CLÁUSULA 3ª — DO VALOR E DO PAGAMENTO
+Pela locação ora acertada, o LOCATÁRIO pagará ao LOCADOR o valor total de {{valor.total}} ({{valor.extenso}}), a título de aluguel por temporada, via {{pagamento.metodo}}, da seguinte forma:
 {{pagamento.cronograma}}
+a) As chaves só serão liberadas mediante a confirmação de todos os pagamentos, inclusive da caução.
+b) O valor total refere-se à locação durante o {{evento}}, de {{reserva.checkin}} a {{reserva.checkout}}, na cidade de Salvador/BA, e deverá estar integralmente pago até a entrega das chaves. O valor poderá ser ajustado caso o número de pessoas ultrapasse o combinado de {{reserva.hospedes}}.
+c) A intermediação desta locação é realizada por {{corretor.nome}}, {{corretor.creci}}, cuja remuneração é paga pelo proprietário do imóvel, conforme acordado entre eles.
 
-4. DISPOSIÇÕES GERAIS
-[Cláusulas a serem definidas e aprovadas pelo responsável jurídico.]
+CLÁUSULA 4ª — DO PERÍODO
+A locação terá como data de entrada {{reserva.checkin}}, às {{reserva.horaEntrada}} (horário da vistoria do imóvel e da entrega das chaves), e saída em {{reserva.checkout}}, até as {{reserva.horaSaida}} (horário da vistoria para devolução das chaves), totalizando {{reserva.noites}} noites. Nesse momento o LOCATÁRIO é obrigado a devolver o imóvel, independentemente de notificação ou aviso, no estado geral descrito no Termo de Vistoria.
+a) A quantidade de pessoas hospedadas no imóvel não poderá exceder {{imovel.capacidade}} em hipótese ou momento algum.
+b) O imóvel será entregue limpo. Na saída será cobrada a taxa de limpeza de {{valor.limpeza}}.
+c) O LOCATÁRIO é responsável pelo consumo de energia elétrica, medido a partir da entrega das chaves e acertado ao final da temporada.
+
+CLÁUSULA 5ª — DA CAUÇÃO
+O LOCATÁRIO entregará ao corretor, na chegada, a quantia de {{caucao.valor}} ({{caucao.extenso}}) como caução e garantia para cobertura de eventuais danos ao imóvel, aos móveis, utensílios e eletrodomésticos. O valor será devolvido ao final da locação, após a vistoria que constate o bom uso e a preservação do imóvel, descontado o indispensável para reparos, se houver.
+
+CLÁUSULA 6ª — DA PERMANÊNCIA APÓS O PRAZO E DO ATRASO
+A permanência no imóvel após o encerramento do prazo da Cláusula 4ª implicará o pagamento de {{multa.diaria}} por dia excedente, até a definitiva desocupação.
+a) O pagamento em atraso implicará multa diária de 2% sobre o valor da parcela, até o limite de 10%, acrescida de juros de mora de 2% ao mês.
+
+CLÁUSULA 7ª — DA LEGISLAÇÃO
+Este contrato é regido pelos artigos 48 a 50 da Lei nº 8.245/91 e demais disposições legais pertinentes.
+
+CLÁUSULA 8ª — DAS OBRIGAÇÕES DO LOCATÁRIO
+Além das previstas em lei, são obrigações do LOCATÁRIO:
+a) Não ceder ou franquear o imóvel a terceiros sem o prévio e expresso consentimento, por escrito, do LOCADOR.
+b) Restituir o imóvel nas mesmas condições em que o recebeu, limpo, sem estragos, avarias ou danos, inclusive móveis, utensílios e demais pertences.
+c) Comunicar imediatamente ao LOCADOR quaisquer ocorrências imprevistas no imóvel e em seus utensílios.
+d) Antes da entrega das chaves, enviar os nomes e documentos de todos os hóspedes (RG, CNH, passaporte, carteira de trabalho ou documento de classe), com telefone e endereço de residência.
+
+CLÁUSULA 9ª — DA VISTORIA
+A vistoria dos móveis e utensílios existentes no imóvel integra este contrato para todos os fins de direito, cabendo ao LOCADOR reter, do valor da caução, o indispensável para cobrir os prejuízos ocorridos no imóvel quando da sua entrega definitiva.
+
+CLÁUSULA 10ª — DO ADIAMENTO DO EVENTO
+Este contrato vale para o {{evento}}. Caso o evento seja cancelado ou adiado por determinação do poder público, o contrato valerá para a nova data definida pela Prefeitura de Salvador. Se utilizado no ano seguinte, o valor total sofrerá reajuste de 15%.
+
+CLÁUSULA 11ª — DA RESCISÃO
+Se qualquer das partes rescindir ou desistir deste contrato antes do prazo estabelecido, pagará à outra parte, a título de indenização, o equivalente a 2 (duas) locações sobre o valor total deste contrato.
+a) O LOCADOR fica isento da multa rescisória caso, na impossibilidade de locar o imóvel, ofereça ao LOCATÁRIO outro imóvel, para troca, com as mesmas características.
+
+CLÁUSULA 12ª — DO FORO
+As partes elegem o Foro da Comarca de Salvador/BA para dirimir qualquer dúvida sobre este instrumento.
+
+E, por estarem assim justas e contratadas, as partes assinam o presente contrato em 4 (quatro) vias de igual teor e forma, na presença de testemunhas.
 
 Salvador, {{data.hoje}}.
+
+
+___________________________________________
+LOCADOR(A): {{locador.nome}}
+
+
+___________________________________________
+LOCATÁRIO(A): {{cliente.nome}}
+
+
+TESTEMUNHAS
+
+1ª) ________________________________________
+Nome:
+CPF:
+
+2ª) ________________________________________
+Nome:
+CPF:
 
 Código da reserva: {{reserva.codigo}}`,
   },
