@@ -128,16 +128,38 @@ server/
 - **Conflito:** o carrinho e o checkout revalidam as datas antes de gravar.
 - **Distâncias:** linha reta até o traçado ilustrativo mais próximo, sempre rotuladas como estimativa.
 
-## 7. Antes de ir para produção
+## 7. O que falta (antes de ir para produção)
 
-1. Trocar os traçados dos circuitos pela geometria oficial.
-2. Contratar um provedor de mapas (Google Maps, Mapbox ou MapTiler).
-3. Implementar autenticação real e validar permissões no servidor.
-4. ~~Trocar o store local por API + banco de dados, com verificação transacional de disponibilidade.~~ Feito em `server/`. Falta hospedar o servidor (ex.: Render, Railway, Fly.io ou uma VPS com disco persistente) e publicar o site com `VITE_API_URL` apontando para ele. Para rodar mais de uma instância, trocar o SQLite por Postgres com restrição de exclusão (`EXCLUDE USING gist`) nos períodos.
-5. Integrar um provedor de pagamento (Pix/cartão) sem coletar cartão no front-end. Para o Pix: trocar `pixReceiver` pela chave real ou, melhor, usar o Pix dinâmico do provedor, que confirma o pagamento sozinho (webhook) e dispensa o comprovante manual.
-6. Integrar assinatura eletrônica e submeter os modelos de contrato a revisão jurídica.
-7. Substituir fotos, imóveis e valores pelos reais.
-8. Definir o nome e o logo definitivos em `src/config/brand.ts` e `src/components/Brand.tsx`.
+Atualizado em 21/10/2026, na ordem recomendada.
+
+**Para funcionar de verdade com clientes**
+
+1. **Login real.** Hoje qualquer pessoa entra como admin escolhendo o perfil, sem senha. Falta login (e-mail e senha ou código por e-mail) validado no servidor. As permissões já são checadas no servidor; basta trocar `session()` em `server/index.ts`. Precisa vir antes de publicar o servidor.
+2. **Hospedar o servidor.** O servidor e o banco (`server/`) estão prontos; falta colocá-los na internet (Render, Railway ou Fly.io com disco persistente, cerca de US$ 5 a 7/mês) e publicar o site com `VITE_API_URL` apontando para ele. Sem isso, cada pessoa vê só os dados do próprio navegador. Para mais de uma instância, trocar o SQLite por Postgres com restrição de exclusão (`EXCLUDE USING gist`) nos períodos.
+3. **Pix real.** Trocar a chave fictícia (`pixReceiver` em `src/config/payment.ts`) pela chave real ou, melhor, usar o Pix dinâmico de um provedor (Mercado Pago, Asaas, Efí etc.), que confirma o pagamento sozinho (webhook) e dispensa o comprovante manual.
+4. **Cartão real.** Hoje o cartão é simulado. Integrar o provedor de pagamento, com os dados do cartão digitados no ambiente do provedor, nunca no site.
+
+**Conteúdo e marca**
+
+5. **Nome e logo definitivos** em `src/config/brand.ts` e `src/components/Brand.tsx` (hoje "Sua Marca").
+6. **Imóveis, fotos e valores reais** em `src/data/properties.ts` e `public/images/properties` (hoje 12 imóveis fictícios com fotos geradas por IA).
+7. **Contratos:** revisão jurídica dos modelos e assinatura eletrônica com um provedor homologado (hoje é simulada).
+
+**Mapa**
+
+8. **Circuitos oficiais:** trocar os traçados ilustrativos do Dodô, Osmar e Batatinha pela geometria oficial (`src/data/geo.ts`).
+9. **Provedor de mapas:** o mapa usa os blocos públicos do ArcGIS (World Street Map), que exigem licença para uso em produção. Contratar Google Maps, Mapbox ou MapTiler (`src/config/env.ts`).
+
+**Manutenção**
+
+10. **Atualizar pacotes com alertas de segurança** do `npm audit`: `jspdf` (crítico), `vite`, `vite-plugin-singlefile`, `react-router-dom` e `tsx`.
+
+**Já feito**
+
+- [x] API + banco de dados com reservas transacionais, sem reserva dupla (`server/`)
+- [x] Pix por parcela com QR Code e copia e cola (fictícios), comprovante e aprovação pelo administrador
+- [x] Cabeçalho: Entrar, carrinho e conta distintos dos chips de filtro
+- [x] Repositório público no GitHub e site no GitHub Pages com deploy automático
 
 ## 8. Limitações conhecidas
 

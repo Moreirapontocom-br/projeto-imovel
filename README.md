@@ -51,19 +51,22 @@ public/images/properties fotos (geradas por IA, marcadas como ilustrativas)
 - **React 18 + Vite + TypeScript**, React Router (HashRouter, para hospedagem estática)
 - **Zustand** (`src/store`) é a fonte única de verdade das telas. No modo demonstração, guarda os dados no `localStorage`. No modo API, guarda a última visão recebida do servidor.
 - **Servidor** (`server/`): Node 22.5+ com `node:sqlite`, sem dependências de produção. Recalcula total e parcelas no servidor, filtra os dados por perfil e grava reservas em transação. Um trigger no banco recusa períodos sobrepostos.
-- **Leaflet / react-leaflet** com tiles do OpenStreetMap
+- **Leaflet / react-leaflet** com blocos do ArcGIS World Street Map (uso de demonstração; produção exige provedor licenciado)
 - **jsPDF** para PDFs demonstrativos com marca d'água
 - `src/lib`: regras puras: disponibilidade e conflitos (`availability.ts`), orçamento e parcelas (`payment.ts`), distâncias em linha reta (`geo.ts`), preenchimento de contratos (`contract.ts`)
 - `src/services`: **pontos de integração futura** (gateway de pagamento, assinatura eletrônica, autenticação), hoje com implementações simuladas e a mesma interface que a versão real vai implementar
 
-## Antes de ir para produção
+## O que falta
 
-- Substituir os traçados dos circuitos pela geometria oficial; hoje são aproximações ilustrativas.
-- Usar um provedor de mapas com contrato/chave (o tile público do OSM não é para tráfego de produção).
-- Implementar autenticação real e **validar permissões no backend**. Hoje a separação visitante/cliente/admin existe só no front-end.
-- Hospedar o servidor (`server/`) e apontar `VITE_API_URL` para ele. Para vários servidores, trocar o SQLite por Postgres com restrição de exclusão de períodos.
-- Integrar PSP (Pix/cartão) sem coletar dados de cartão no front-end, além de um provedor de assinatura eletrônica.
-- Submeter os modelos de contrato a revisão jurídica.
+Lista completa e em ordem de prioridade em [DOCUMENTACAO.md › O que falta](DOCUMENTACAO.md#7-o-que-falta-antes-de-ir-para-produção). Resumo:
+
+1. Login real, com permissões validadas no servidor.
+2. Hospedar o servidor (`server/`) e apontar `VITE_API_URL` para ele.
+3. Pix real (chave verdadeira ou Pix dinâmico de um provedor) e cartão real.
+4. Nome, logo, imóveis, fotos e valores reais.
+5. Revisão jurídica e assinatura eletrônica dos contratos.
+6. Circuitos oficiais no mapa e provedor de mapas com licença.
+7. Atualizar pacotes com alertas de segurança (`npm audit`).
 
 ## Créditos das imagens
 
