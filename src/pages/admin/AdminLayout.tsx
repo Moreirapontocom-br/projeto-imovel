@@ -1,4 +1,5 @@
 import { NavLink, Navigate, Outlet, useLocation, Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import { LayoutGrid, Building2, CalendarRange, Users, FileText, Settings, ExternalLink, Receipt } from 'lucide-react';
 import { useStore } from '@/store';
 import { BrandMark } from '@/components/Brand';
@@ -21,13 +22,16 @@ export default function AdminLayout() {
   const pending = useStore((s) => s.reservations.filter((r) => r.status === 'pendente').length);
   const toReview = useStore((s) => s.reservations.reduce((n, r) => n + r.installments.filter((i) => i.status === 'em-analise').length, 0));
   const loc = useLocation();
+  const nav = useRef<HTMLElement>(null);
+  // no celular o menu rola de lado: mantém a seção atual à vista
+  useEffect(() => { nav.current?.querySelector('.active')?.scrollIntoView({ block: 'nearest', inline: 'center' }); }, [loc.pathname]);
   if (role !== 'admin') return <Navigate to={`/entrar?next=${encodeURIComponent(loc.pathname)}`} replace />;
 
   return (
     <div className="admin">
       <aside className="admin-side">
         <BrandMark to="/admin" sub="Painel administrativo" inverse />
-        <nav aria-label="Administração">
+        <nav aria-label="Administração" ref={nav}>
           {NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} className="admin-link">
               <Icon size={18} strokeWidth={1.9} />{label}

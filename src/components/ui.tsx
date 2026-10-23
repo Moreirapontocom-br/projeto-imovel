@@ -73,8 +73,12 @@ export function Modal({ open, onClose, title, children, footer, wide }: { open: 
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    // foca o primeiro campo; sem campos, foca o próprio diálogo (sem anel de foco em botão ao abrir)
-    (ref.current?.querySelector<HTMLElement>('input,textarea,select') ?? ref.current)?.focus();
+    // foca o primeiro campo de texto; sem campos, foca o próprio diálogo (sem anel de foco em botão ao abrir).
+    // No toque, foca só o diálogo: abrir o teclado ou rolar até um checkbox no meio do modal atrapalha.
+    const field = matchMedia('(pointer: fine)').matches
+      ? ref.current?.querySelector<HTMLElement>('input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select')
+      : null;
+    (field ?? ref.current)?.focus({ preventScroll: !field });
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; prev?.focus(); };
   }, [open]);
   if (!open) return null;

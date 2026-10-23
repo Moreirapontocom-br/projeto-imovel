@@ -195,3 +195,21 @@ input, textarea { caret-color: var(--gold); }
 .pill.is-review { color: #1d4f7a; background: #E7F0F8; }
 .pill.is-error { color: var(--error); background: #FDF0EE; }
 .seg-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--r-sm); background: var(--navy); color: #fff; font-size: 11px; display: inline-grid; place-items: center; }
+
+/* Tabelas no celular: cada linha vira uma ficha com rótulo à esquerda e valor à direita
+   (rótulos copiados do cabeçalho por src/lib/tableLabels.ts). `.table-plain` fica como tabela. */
+@media (max-width: 640px) {
+  .table:not(.table-plain), .table:not(.table-plain) tbody, .table:not(.table-plain) tr, .table:not(.table-plain) td { display: block; }
+  .table:not(.table-plain) thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .table:not(.table-plain) tbody tr { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .table:not(.table-plain) tbody tr:last-child { border-bottom: none; }
+  .table:not(.table-plain) td { padding: 5px 0; border: none; text-align: right; white-space: normal; }
+  .table:not(.table-plain) td::before { content: attr(data-label); float: left; max-width: 45%; margin-right: 16px; padding-top: 1px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text-3); }
+  .table:not(.table-plain) td::after { content: ""; display: table; clear: both; }
+  .table:not(.table-plain) td:first-child { display: block; padding: 0 0 6px; text-align: left; font-weight: 600; color: var(--navy); }
+  .table:not(.table-plain) td:first-child::before, .table:not(.table-plain) td:not([data-label])::before { content: none; }
+  .table:not(.table-plain) td:not([data-label]):not(:first-child) { padding-top: 10px; }
+  .table:not(.table-plain) td:empty { display: none; }
+  .table:not(.table-plain) td.num { font-weight: 600; }
+  .table-wrap { overflow: visible; }
+}

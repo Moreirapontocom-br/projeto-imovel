@@ -92,7 +92,7 @@
 @media (max-width: 1000px) { .settings { grid-template-columns: 1fr; } }
 
 @media (max-width: 860px) {
-  .admin { grid-template-columns: minmax(0, 1fr); }
+  .admin { grid-template-columns: minmax(0, 1fr); align-content: start; }
   .sf-btn { padding: 6px 12px; min-height: 40px; }
   .unit { grid-template-columns: 48px minmax(0, 1fr); }
   .unit .status { grid-column: 2; justify-self: start; }

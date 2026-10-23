@@ -187,3 +187,4 @@ Atualizado em 21/10/2026, na ordem recomendada.
 | 20/10/2026 | Pix por parcela (QR Code e copia e cola fictícios), comprovante e aprovação pelo admin |
 | 23/10/2026 | Mapa: card do pin compacto na faixa de mapa (não abre mais cortado) |
 | 23/10/2026 | Pix em qualquer parcela em aberto, inclusive de reservas feitas no cartão |
+| 23/10/2026 | Celular: cabeçalho solto, abas do cliente em barra inferior, tabelas viram fichas, filtros numa linha |

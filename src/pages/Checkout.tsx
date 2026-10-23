@@ -114,7 +114,7 @@ export default function Checkout() {
 
             <section className="step">
               <h2>Cronograma</h2>
-              <table className="table">
+              <table className="table table-plain">
                 <thead><tr><th>Pagamento</th><th>Vencimento</th><th className="num">Valor</th></tr></thead>
                 <tbody>
                   {plan.map((i) => <tr key={i.n}><td>{i.label}</td><td>{fmtLong(i.dueDate)}</td><td className="num">{brlExact(i.amount)}</td></tr>)}

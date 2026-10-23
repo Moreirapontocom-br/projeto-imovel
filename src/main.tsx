@@ -6,9 +6,12 @@ import './styles/base.css';
 import './styles/site.css';
 import './styles/app.css';
 import App from './App';
+import { labelTableCells } from './lib/tableLabels';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
 );
+
+labelTableCells();
