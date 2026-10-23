@@ -9,6 +9,8 @@ import { fileSize } from '@/lib/receipt';
 import type { Installment, Receipt, Reservation } from '@/types';
 
 type Row = { r: Reservation; i: Installment };
+// reservas no cartão também aceitam Pix por parcela: o comprovante anexado indica o meio usado
+const viaPix = ({ r, i }: Row) => r.method === 'pix' || !!i.receipt;
 type Filter = 'analise' | 'pix' | 'todos';
 
 export default function AdminPayments() {
@@ -23,7 +25,7 @@ export default function AdminPayments() {
 
   const all: Row[] = reservations.flatMap((r) => r.installments.map((i) => ({ r, i })));
   const waiting = all.filter(({ i }) => i.status === 'em-analise');
-  const list = (f === 'analise' ? waiting : f === 'pix' ? all.filter(({ r }) => r.method === 'pix') : all)
+  const list = (f === 'analise' ? waiting : f === 'pix' ? all.filter(viaPix) : all)
     .sort((a, b) => (b.i.receipt?.uploadedAt ?? '').localeCompare(a.i.receipt?.uploadedAt ?? '') || a.i.dueDate.localeCompare(b.i.dueDate));
 
   async function approve({ r, i }: Row) {
@@ -52,7 +54,7 @@ export default function AdminPayments() {
                 <tr key={key}>
                   <td><span className="mono">{r.code}</span><br /><small className="muted">{properties.find((p) => p.id === r.propertyId)?.title}</small></td>
                   <td className="nowrap">{clients.find((c) => c.id === r.clientId)?.name}</td>
-                  <td className="nowrap">{i.label}<br /><small className="muted">{r.method === 'pix' ? 'Pix' : 'Cartão'} · vence {fmtLong(i.dueDate)}</small></td>
+                  <td className="nowrap">{i.label}<br /><small className="muted">{viaPix({ r, i }) ? 'Pix' : 'Cartão'} · vence {fmtLong(i.dueDate)}</small></td>
                   <td className="num">{brlExact(i.amount)}</td>
                   <td>
                     {i.receipt

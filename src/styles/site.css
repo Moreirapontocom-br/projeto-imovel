@@ -215,6 +215,18 @@
 .popup-body strong { font-size: 15px; color: var(--navy); }
 .popup-body b { color: var(--navy); font: 600 19px/1.2 var(--font-display); margin-top: 6px; }
 .popup-body small { font-weight: 400; color: var(--text-3); }
+/* mapa baixo (faixa da busca no computador, detalhe do imóvel): o cartão vertical (~320px) não cabia,
+   abria cortado e o mapa deslizava até sumir com os pinos. Aqui ele vira horizontal e compacto. */
+.map { container-type: size; }
+@container (max-height: 420px) {
+  .map-popup .leaflet-popup-content { width: 340px !important; }
+  .popup-card { grid-template-columns: 116px minmax(0, 1fr); }
+  .popup-card img { height: 100%; aspect-ratio: auto; }
+  .popup-card .img-tag { top: auto; bottom: 6px; left: 6px; font-size: 9.5px; padding: 2px 5px; }
+  .popup-body { padding: 10px 14px 12px; font-size: 13px; }
+  .popup-body strong { font-size: 14px; }
+  .popup-body b { font-size: 17px; margin-top: 3px; }
+}
 @media (max-width: 640px) { .map-legend { flex-wrap: wrap; right: 12px; } .map-legend-status { display: none; } }
 
 /* ---------- Detalhe ---------- */
@@ -497,3 +509,4 @@ iframe.receipt-view { height: 70vh; }
   .nb-grid { grid-template-columns: 1fr; }
   .amen-grid { grid-template-columns: 1fr; }
 }
+.pay-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }

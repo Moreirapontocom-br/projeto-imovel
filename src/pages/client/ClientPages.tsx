@@ -73,7 +73,9 @@ export function ClientPayments() {
       {mine.map((r) => {
         const p = properties.find((x) => x.id === r.propertyId)!;
         const pix = r.method === 'pix';
-        const nextCard = r.installments.find((x) => x.status !== 'pago')?.n;
+        const active = r.status !== 'cancelada';
+        // Pix vale para qualquer parcela em aberto, inclusive de reservas feitas no cartão
+        const nextCard = r.installments.find((x) => x.status !== 'pago' && x.status !== 'em-analise')?.n;
         return (
           <section key={r.id} className="panel">
             <header className="panel-head">
@@ -89,16 +91,18 @@ export function ClientPayments() {
                     <td className="num">{brlExact(i.amount)}</td>
                     <td><InstallmentPill i={i} /></td>
                     <td className="right">
-                      {pix && r.status !== 'cancelada' && i.status !== 'pago' && (
-                        <Button size="sm" variant={i.status === 'em-analise' ? 'ghost' : 'secondary'} onClick={() => setOpen({ r, n: i.n })}>
-                          {i.status === 'em-analise' ? 'Ver envio' : <><QrCode size={15} />Pagar com Pix</>}
-                        </Button>
-                      )}
-                      {!pix && i.status !== 'pago' && i.n === nextCard && (
-                        <Button size="sm" variant="secondary" loading={busy === `${r.id}-${i.n}`} onClick={async () => { setBusy(`${r.id}-${i.n}`); await new Promise((x) => setTimeout(x, 700)); await pay(r.id, i.n); setBusy(''); }}>
-                          Simular pagamento
-                        </Button>
-                      )}
+                      <span className="pay-actions">
+                        {active && i.status !== 'pago' && (
+                          <Button size="sm" variant={i.status === 'em-analise' ? 'ghost' : 'secondary'} onClick={() => setOpen({ r, n: i.n })}>
+                            {i.status === 'em-analise' ? 'Ver envio' : <><QrCode size={15} />Pagar com Pix</>}
+                          </Button>
+                        )}
+                        {active && !pix && i.n === nextCard && (
+                          <Button size="sm" variant="ghost" loading={busy === `${r.id}-${i.n}`} onClick={async () => { setBusy(`${r.id}-${i.n}`); await new Promise((x) => setTimeout(x, 700)); await pay(r.id, i.n); setBusy(''); }}>
+                            Simular cartão
+                          </Button>
+                        )}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -110,7 +114,7 @@ export function ClientPayments() {
       <Modal open={!!openInst} onClose={() => setOpen(null)} title={openInst ? `Pagar ${pixTitle(openInst)} com Pix` : 'Pix'} wide>
         {openRes && openInst && <PixPayment reservation={openRes} installment={openInst} />}
       </Modal>
-      <p className="fineprint">Pix: pague pelo QR Code ou copia e cola e anexe o comprovante; cada parcela é confirmada pelo administrador. Cartão: pagamento simulado. Nenhuma transação real é processada.</p>
+      <p className="fineprint">Qualquer parcela em aberto pode ser paga com Pix, mesmo em reservas feitas no cartão: use o QR Code ou o copia e cola e anexe o comprovante; cada parcela é confirmada pelo administrador. Cartão: pagamento simulado. Códigos Pix fictícios; nenhuma transação real é processada.</p>
     </div>
   );
 }

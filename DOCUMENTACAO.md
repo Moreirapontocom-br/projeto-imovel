@@ -31,11 +31,11 @@ Protótipo **demonstrativo** de uma plataforma de locação de apartamentos para
 
 ## 2. Roteiro de demonstração (5 minutos)
 
-1. **Busca:** abra a página inicial. Passe o mouse nos cards e veja o pin destacar no mapa. Clique num pin para ver o card do imóvel.
+1. **Busca:** abra a página inicial. Passe o mouse nos cards e veja o pin destacar no mapa. Clique num pin para ver o card do imóvel (na faixa de mapa do computador ele abre compacto, na horizontal).
 2. **Filtros:** escolha "Barra", depois "Distância do circuito › Até 1 km". Ligue "Circuitos" no mapa.
 3. **Imóvel:** abra um apartamento disponível. Mostre as fotos, as comodidades, o calendário (dias riscados = ocupados) e as distâncias até os circuitos.
 4. **Reserva:** clique em **Reservar**, preencha os dados, escolha **Pix** e "Entrada + 3x". Confirme a reserva simulada.
-5. **Pix:** a confirmação mostra o QR Code e o copia e cola da entrada. Anexe qualquer foto ou PDF como comprovante: a entrada fica *em análise*. Em Minha área › Pagamentos, cada parcela tem seu próprio QR Code. Mostre também o contrato preenchido automaticamente (Visualizar / PDF).
+5. **Pix:** a confirmação mostra o QR Code e o copia e cola da entrada. Anexe qualquer foto ou PDF como comprovante: a entrada fica *em análise*. Em Minha área › Pagamentos, cada parcela tem seu próprio QR Code, inclusive nas reservas feitas no cartão. Mostre também o contrato preenchido automaticamente (Visualizar / PDF).
 6. **Admin:** Menu › Entrar › **Administrador**. Em **Pagamentos**, abra o comprovante e clique em **Aprovar** (ou **Recusar**, informando o motivo que o cliente vai ver). Na visão geral, o imóvel reservado aparece como *Pendente*. Em Reservas, clique em **Confirmar**. Mostre o editor de contratos e as condições de pagamento.
 7. **Conflito:** volte ao mesmo imóvel e tente as mesmas datas. O calendário bloqueia o período.
 
@@ -122,6 +122,7 @@ server/
 - **Pagamento:** entrada de 30%, saldo em até 6x no cartão ou 3x no Pix. Juros e desconto Pix em 0%, tudo configurável no admin.
 - **Pix:** cada parcela (inclusive a entrada) tem seu QR Code e copia e cola, no padrão do Banco Central (BR Code, com CRC), com o código da reserva e o número da parcela no identificador. O recebedor é **fictício** (`pix@sua-marca.invalid`, domínio que não existe), então nenhum banco aceita o pagamento. Os dados ficam em `src/config/payment.ts` (`pixReceiver`).
 - **Comprovante:** foto (JPG, PNG, WebP) ou PDF de até 3 MB; fotos são reduzidas para no máximo 1600 px antes do envio. A parcela fica *em análise*. O admin aprova (vira *paga*) ou recusa com motivo (volta a *em aberto* e o cliente vê o motivo e pode reenviar). Reenviar substitui o arquivo anterior.
+- **Pix em qualquer pagamento:** toda parcela em aberto pode ser paga com Pix, mesmo em reservas feitas no cartão (inclusive as antigas). Na confirmação de uma reserva no cartão, o Pix da entrada aparece como alternativa. O admin vê essas parcelas como "Pix" quando há comprovante.
 - **Cartão:** continua com pagamento simulado (aprovação imediata), sem comprovante.
 - **Status do imóvel** no período do Carnaval: bloqueado > pendente > reservado > disponível.
 - **Reserva nova:** entra como *pendente*. O admin confirma ou cancela, e cancelar libera as datas.
@@ -160,6 +161,8 @@ Atualizado em 21/10/2026, na ordem recomendada.
 - [x] Pix por parcela com QR Code e copia e cola (fictícios), comprovante e aprovação pelo administrador
 - [x] Cabeçalho: Entrar, carrinho e conta distintos dos chips de filtro
 - [x] Repositório público no GitHub e site no GitHub Pages com deploy automático
+- [x] Mapa: card do imóvel cabe na faixa de mapa ao clicar num pin
+- [x] Pix (fictício) em qualquer parcela em aberto, inclusive de reservas no cartão
 - [x] Novo visual (cantos retos, serifa Newsreader, fundo areia) e busca reestruturada: faixa de mapa fixa no topo, fichas largas e ordenação
 
 ## 8. Limitações conhecidas
@@ -182,3 +185,5 @@ Atualizado em 21/10/2026, na ordem recomendada.
 | 20/10/2026 | API + banco SQLite com reservas transacionais (modo API opcional) |
 | 20/10/2026 | Cabeçalho: Entrar, carrinho e conta distintos dos filtros |
 | 20/10/2026 | Pix por parcela (QR Code e copia e cola fictícios), comprovante e aprovação pelo admin |
+| 23/10/2026 | Mapa: card do pin compacto na faixa de mapa (não abre mais cortado) |
+| 23/10/2026 | Pix em qualquer parcela em aberto, inclusive de reservas feitas no cartão |

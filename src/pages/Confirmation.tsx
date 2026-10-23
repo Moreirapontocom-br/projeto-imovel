@@ -46,13 +46,14 @@ export default function Confirmation() {
           })}
         </ul>
 
-        {pix && reservations.map((r) => (
+        {/* no cartão o Pix fica como alternativa */}
+        {reservations.map((r) => (
           <section key={r.id} className="pix-box">
-            <h2>{reservations.length > 1 ? `${properties.find((x) => x.id === r.propertyId)?.title} · ` : ''}{r.installments[0].label} via Pix</h2>
+            <h2>{reservations.length > 1 ? `${properties.find((x) => x.id === r.propertyId)?.title} · ` : ''}{pix ? `${r.installments[0].label} via Pix` : `Prefere pagar ${r.installments[0].label.toLowerCase()} com Pix?`}</h2>
             <PixPayment reservation={r} installment={r.installments[0]} />
           </section>
         ))}
-        {pix && hasMoreInstallments(reservations) && <p className="muted small">As próximas parcelas ficam em <b>Minha área › Pagamentos</b>, cada uma com seu QR Code.</p>}
+        {hasMoreInstallments(reservations) && <p className="muted small">As próximas parcelas ficam em <b>Minha área › Pagamentos</b>, cada uma com seu QR Code Pix.</p>}
 
         <div className="confirm-actions">
           <Link to="/cliente" className="btn btn-primary btn-lg">Ir para minha área</Link>
